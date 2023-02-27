@@ -58,6 +58,8 @@
         "vscode": "^1.1.36"
     },
     "dependencies": {
-        "codeowners": "^4.1.1"
+        "@snyk/github-codeowners": "^1.1.0",
+        "codeowners": "^4.1.1",
+        "find-up": "^5.0.0"
     }
 }

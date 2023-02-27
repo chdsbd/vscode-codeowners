@@ -1,11 +1,13 @@
 const vscode = require('vscode');
 const Codeowners = require('codeowners');
+const findUp = require('find-up');
 const path = require('path');
+const GitHubCodeowners = require('@snyk/github-codeowners/dist/lib/ownership');
 
 const COMMAND_ID = 'vscode-codeowners.show-owners';
 const STATUS_BAR_PRIORITY = 100;
 
-const getOwners = () => {
+const getOwners = async () => {
     if (!vscode.window.activeTextEditor) {
         return [];
     }
@@ -16,17 +18,23 @@ const getOwners = () => {
         uri: { fsPath: workspacePath }
     } = vscode.workspace.getWorkspaceFolder(uri);
 
-    let folder;
-    try {
-        folder = new Codeowners(workspacePath);
-    } catch {
-        // no CODEOWNERS file
-        return null;
-    }
+    const codeownersFilePath = findUp.sync('CODEOWNERS', { cwd: workspacePath });
+    console.log({ codeownersFilePath });
 
     const file = fileName.split(`${workspacePath}${path.sep}`)[1];
 
-    return folder.getOwner(file);
+    try {
+        const res = await GitHubCodeowners.getOwnership(codeownersFilePath, [file]);
+
+        console.log({ res });
+        if (res.length > 0) {
+            return res[0].owners;
+        }
+        return [];
+    } catch (e) {
+        console.error(err);
+        return [];
+    }
 };
 
 const activate = context => {
@@ -41,7 +49,7 @@ const activate = context => {
         vscode.commands.registerCommand(COMMAND_ID, async () => {
             // string | undefined
             const res = await vscode.window.showQuickPick(
-                getOwners().map(owner => ({
+                await getOwners().map(owner => ({
                     label: owner,
                     description: 'Open in GitHub'
                 }))
@@ -62,8 +70,8 @@ const activate = context => {
     );
 
     context.subscriptions.push(
-        vscode.window.onDidChangeActiveTextEditor(() => {
-            const owners = getOwners();
+        vscode.window.onDidChangeActiveTextEditor(async () => {
+            const owners = await getOwners();
 
             if (!owners) {
                 statusBarItem.hide();
