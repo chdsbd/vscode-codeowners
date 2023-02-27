@@ -1,5 +1,4 @@
 const vscode = require('vscode');
-const Codeowners = require('codeowners');
 const findUp = require('find-up');
 const path = require('path');
 const GitHubCodeowners = require('@snyk/github-codeowners/dist/lib/ownership');
@@ -25,8 +24,6 @@ const getOwners = async () => {
 
     try {
         const res = await GitHubCodeowners.getOwnership(codeownersFilePath, [file]);
-
-        console.log({ res });
         if (res.length > 0) {
             return res[0].owners;
         }
