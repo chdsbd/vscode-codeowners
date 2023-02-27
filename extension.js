@@ -29,7 +29,7 @@ const getOwners = async () => {
         }
         return [];
     } catch (e) {
-        console.error(err);
+        console.error(e);
         return [];
     }
 };
