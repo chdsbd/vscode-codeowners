@@ -5,7 +5,8 @@ import path from 'path';
 type CodeOwners = { getOwnership(codeownersFilePath: string, filePaths: string[]): Promise<{ owners: string[] }[]> };
 const GitHubCodeowners: CodeOwners = require('@snyk/github-codeowners/dist/lib/ownership');
 
-const COMMAND_ID = 'vscode-codeowners.show-owners';
+const COMMAND_ID = 'vscode-github-codeowners.show-owners';
+
 const STATUS_BAR_PRIORITY = 100;
 
 async function getOwners(): Promise<string[] | null> {
@@ -104,5 +105,3 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 }
-
-// export const deactivate = () => {};
