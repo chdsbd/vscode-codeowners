@@ -1,23 +1,34 @@
-const vscode = require('vscode');
-const findUp = require('find-up');
-const path = require('path');
-const GitHubCodeowners = require('@snyk/github-codeowners/dist/lib/ownership');
+import vscode from 'vscode';
+import findUp from 'find-up';
+import path from 'path';
+
+type CodeOwners = { getOwnership(codeownersFilePath: string, filePaths: string[]): Promise<{ owners: string[] }[]> };
+const GitHubCodeowners: CodeOwners = require('@snyk/github-codeowners/dist/lib/ownership');
 
 const COMMAND_ID = 'vscode-codeowners.show-owners';
 const STATUS_BAR_PRIORITY = 100;
 
-const getOwners = async () => {
+async function getOwners(): Promise<string[] | null> {
     if (!vscode.window.activeTextEditor) {
         return [];
     }
 
     const { fileName, uri } = vscode.window.activeTextEditor.document;
 
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+
+    if (workspaceFolder == null) {
+        return null;
+    }
+
     const {
-        uri: { fsPath: workspacePath }
-    } = vscode.workspace.getWorkspaceFolder(uri);
+        uri: { fsPath: workspacePath },
+    } = workspaceFolder;
 
     const codeownersFilePath = findUp.sync('CODEOWNERS', { cwd: workspacePath });
+    if (codeownersFilePath == null) {
+        return null;
+    }
     console.log({ codeownersFilePath });
 
     const file = fileName.split(`${workspacePath}${path.sep}`)[1];
@@ -25,16 +36,16 @@ const getOwners = async () => {
     try {
         const res = await GitHubCodeowners.getOwnership(codeownersFilePath, [file]);
         if (res.length > 0) {
-            return res[0].owners;
+            return res[0].owners.map((x) => x.replace(/^@/, ''));
         }
         return [];
     } catch (e) {
         console.error(e);
         return [];
     }
-};
+}
 
-const activate = context => {
+export function activate(context: vscode.ExtensionContext) {
     console.log('CODEOWNERS: activated');
 
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, STATUS_BAR_PRIORITY);
@@ -44,17 +55,20 @@ const activate = context => {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMAND_ID, async () => {
+            const owners = await getOwners();
+            if (owners == null) {
+                return;
+            }
             // string | undefined
             const res = await vscode.window.showQuickPick(
-                await getOwners().map(owner => ({
-                    label: owner,
-                    description: 'Open in GitHub'
+                owners.map((owner) => ({
+                    label: owner.replace(/^@/, ''),
+                    description: 'Open in GitHub',
                 }))
             );
             if (res != null) {
                 const isTeamName = res.label.includes('/');
-                const githubUsername = res.label.split(/^@/)[1];
-                console.log({ res, isTeamName, githubUsername });
+                const githubUsername = res.label;
 
                 if (isTeamName) {
                     const [org, name] = githubUsername.split(/\//);
@@ -89,9 +103,6 @@ const activate = context => {
             statusBarItem.show();
         })
     );
-};
+}
 
-exports.activate = activate;
-
-const deactivate = () => {};
-exports.deactivate = deactivate;
+// export const deactivate = () => {};
