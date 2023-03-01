@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2.1.0 - 2023-02-28
+
+### Changed
+
+- Update status bar tooltip to better match GitHub UI. (#4)
+
 ## 2.0.1 - 2023-02-28
 
 ### Fixed
