@@ -48,7 +48,7 @@
         "filenames": [
           "CODEOWNERS"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./languages/code-owners-language-configuration.json"
       }
     ],
     "grammars": [
