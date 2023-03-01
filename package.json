@@ -1,67 +1,80 @@
 {
-    "name": "github-codeowners",
-    "displayName": "GitHub Codeowners",
-    "description": "Quickly see GitHub Codeowners for the current file. Adds Syntax highlighting for CODEOWNERS files.",
-    "publisher": "chdsbd",
-    "repository": {
-        "url": "https://github.com/chdsbd/vscode-github-codeowners"
-    },
-    "license": "SEE LICENSE IN LICENSE",
-    "version": "2.0.0",
-    "engines": {
-        "vscode": "^1.29.0"
-    },
-    "categories": [
-        "Other"
+  "name": "github-code-owners",
+  "displayName": "GitHub Code Owners",
+  "description": "Quickly see GitHub Code Owners for the current file. Add syntax highlighting for CODEOWNERS files.",
+  "publisher": "chdsbd",
+  "license": "SEE LICENSE IN LICENSE",
+  "version": "2.0.0",
+  "icon": "images/logo256.png",
+  "homepage": "https://github.com/chdsbd/vscode-github-code-owners/blob/master/README.md",
+  "keywords": [
+    "git",
+    "github",
+    "codeowners",
+    "owners"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chdsbd/vscode-github-code-owners.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chdsbd/vscode-github-code-owners/issues"
+  },
+  "engines": {
+    "vscode": "^1.53.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/CODEOWNERS"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "github-code-owners.show-owners",
+        "title": "GitHub Code Owners: Show owners of current file"
+      }
     ],
-    "activationEvents": [
-        "workspaceContains:**/CODEOWNERS"
+    "languages": [
+      {
+        "id": "codeowners",
+        "aliases": [
+          "CODEOWNERS",
+          "codeowners"
+        ],
+        "filenames": [
+          "CODEOWNERS"
+        ],
+        "configuration": "./language-configuration.json"
+      }
     ],
-    "main": "./out/extension.js",
-    "contributes": {
-        "commands": [
-            {
-                "command": "vscode-github-codeowners.show-owners",
-                "title": "Codeowners: Show owners of current file"
-            }
-        ],
-        "languages": [
-            {
-                "id": "codeowners",
-                "aliases": [
-                    "CODEOWNERS",
-                    "codeowners"
-                ],
-                "filenames": [
-                    "CODEOWNERS"
-                ],
-                "configuration": "./language-configuration.json"
-            }
-        ],
-        "grammars": [
-            {
-                "language": "codeowners",
-                "scopeName": "text.codeowners",
-                "path": "./syntaxes/codeowners.tmLanguage.json"
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "./node_modules/.bin/esbuild ./src/extension.ts --bundle --platform=node --external:vscode --outfile=out/extension.js",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "format": "./node_modules/.bin/prettier --write src/**/* *.md *.json",
-        "format:ci": "./node_modules/.bin/prettier --check src/**/* *.md *.json"
-    },
-    "devDependencies": {
-        "@types/node": "^18.14.2",
-        "@types/vscode": "^1.75.1",
-        "esbuild": "^0.17.10",
-        "prettier": "^2.8.4",
-        "typescript": "^4.9.5"
-    },
-    "dependencies": {
-        "@snyk/github-codeowners": "^1.1.0",
-        "find-up": "^5.0.0"
-    }
+    "grammars": [
+      {
+        "language": "codeowners",
+        "scopeName": "text.codeowners",
+        "path": "./syntaxes/codeowners.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "./node_modules/.bin/esbuild ./src/extension.ts --bundle --platform=node --external:vscode --outfile=out/extension.js",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "format": "./node_modules/.bin/prettier --write src/**/* *.md *.json",
+    "format:ci": "./node_modules/.bin/prettier --check src/**/* *.md *.json"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.2",
+    "@types/vscode": "^1.75.1",
+    "esbuild": "^0.17.10",
+    "prettier": "^2.8.4",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@snyk/github-codeowners": "^1.1.0",
+    "find-up": "^5.0.0"
+  }
 }
