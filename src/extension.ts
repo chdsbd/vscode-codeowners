@@ -35,7 +35,6 @@ async function getOwners(): Promise<string[] | null> {
   if (codeownersFilePath == null) {
     return null
   }
-  console.log({ codeownersFilePath })
 
   const file = fileName.split(`${workspacePath}${path.sep}`)[1]
 
@@ -61,6 +60,20 @@ function formatNames(owners: string[]): string {
   } else {
     return "None"
   }
+}
+
+function formatToolTip(owners: string[]): string {
+  if (owners.length === 0) {
+    return "No Owners"
+  }
+
+  if (owners.length <= 2) {
+    return `Owned by ${owners.join(" and ")}`
+  }
+
+  return `Owned by ${owners.slice(0, owners.length - 1).join(", ")} and ${
+    owners[owners.length - 1]
+  }`
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -115,7 +128,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       statusBarItem.text = `$(shield) ${formatNames(owners)}`
 
-      statusBarItem.tooltip = owners.join(", ")
+      statusBarItem.tooltip = formatToolTip(owners)
       statusBarItem.show()
     }),
   )
