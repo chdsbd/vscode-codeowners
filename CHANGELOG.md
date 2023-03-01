@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2.0.0 - 2023-02-28
+
+### Added
+
+- Typescript
+
+### Changed
+
+- Use icon in status bar instead of name.
+- Open GitHub on selection from code owners quick pick menu.
+
+### Fixed
+
+- Use `@snyk/github-codeowners` instead of `codeowners` to fix broken code owners evaluation.
+
 ## 1.1.1 - 2019-07-31
 
 ### Fixed
