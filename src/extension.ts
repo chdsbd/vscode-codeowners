@@ -101,19 +101,12 @@ class LinkProvider implements vscode.DocumentLinkProvider {
       )
 
       if (range) {
-        const md = new vscode.MarkdownString()
         const username = document.getText(range)
-        md.appendMarkdown(
-          `[View ${username} on GitHub](${githubUserToUrl(
-            username.replace(/^@/, ""),
-          )})`,
-        )
-        // this.codeLenses.push(new vscode.CodeLens(range))
         const link = new vscode.DocumentLink(
           range,
           githubUserToUrl(username.replace(/^@/, "")),
         )
-        link.tooltip = "View user in Github"
+        link.tooltip = `View ${username} on Github`
 
         links.push(link)
       }
