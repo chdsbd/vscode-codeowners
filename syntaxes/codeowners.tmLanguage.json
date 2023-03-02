@@ -15,7 +15,7 @@
     "comment": {
       "patterns": [
         {
-          "begin": "^\\s*#",
+          "begin": "#.+",
           "captures": {
             "0": {
               "name": "punctuation.definition.comment.codeowners"
@@ -34,6 +34,6 @@
       "match": "\\S*@\\S+",
       "name": "storage.type.function.codeowners"
     }
- },
+  },
   "scopeName": "text.codeowners"
 }

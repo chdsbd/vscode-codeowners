@@ -24,7 +24,7 @@ With `vsce` installed from NPM (`yarn global add vsce`), clone [this repo](https
 
 ### Status bar
 
-Shows the first code owner. Click to see all code owners.
+Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
 ![no code owners](./images/none.png)
 ![one user code owner](./images/user.png)
@@ -32,13 +32,15 @@ Shows the first code owner. Click to see all code owners.
 
 ### Command
 
-Display all code owners for the current file with the `GitHub Code Owners: Show owners of current file` command.
+Open matching line in CODEOWNERS file with the `GitHub Code Owners: Show owners of current file` command.
 
 ![code owners command](./images/command.png)
-![code owners list](./images/command-owners.png)
 
-### Syntax highlighting
+### Language support
 
+Make usernames in CODEOWNERS files links to GitHub and add syntax highlighting.
+
+![click to open username in GitHub](./images/open-in-github.png)
 ![syntax highlighting](./images/syntax-highlighting.png)
 
 ## Related extensions

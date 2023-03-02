@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clicking status bar now opens line in CODEOWNERS file. (#6)
 - Status bar tooltip now includes line number in CODEOWNERS file. (#6)
 
+### Fixed
+
+- Fixed syntax highlighting for inline comments. (#6)
+
 ## 2.1.0 - 2023-02-28
 
 ### Changed
