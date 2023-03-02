@@ -82,6 +82,9 @@ function formatToolTip({
   }\n(from CODEOWNERS line ${lineno})`
 }
 
+/**
+ * Add links to usernames in CODEOWNERS file that open on GitHub.
+ */
 class LinkProvider implements vscode.DocumentLinkProvider {
   public provideDocumentLinks(
     document: vscode.TextDocument,
