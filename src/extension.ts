@@ -91,6 +91,7 @@ class LinkProvider implements vscode.DocumentLinkProvider {
     const text = document.getText()
     let matches
     const links = []
+    // loop copied from https://github.com/microsoft/vscode-extension-samples/blob/dfb20f12d425bad2ede0f1faae25e0775ca750eb/codelens-sample/src/CodelensProvider.ts#L24-L37
     while ((matches = regex.exec(text)) !== null) {
       const line = document.lineAt(document.positionAt(matches.index).line)
       const indexOf = line.text.indexOf(matches[0])
@@ -147,21 +148,16 @@ export function activate(context: vscode.ExtensionContext) {
       if (ownership == null) {
         return
       }
-      const quickPickItems: vscode.QuickPickItem[] = ownership.owners.map(
-        (owner) => ({
-          label: owner.replace(/^@/, ""),
-          description: "View in GitHub",
-          detail: `from CODEOWNERS line ${ownership.lineno}`,
-        }),
-      )
       const doc = await vscode.workspace.openTextDocument(ownership.filePath)
       const textEditor = await vscode.window.showTextDocument(doc)
       const line = doc.lineAt(ownership.lineno)
 
+      // select the line.
       textEditor.selection = new vscode.Selection(
         line.range.start,
         line.range.end,
       )
+      // scroll the line into focus.
       textEditor.revealRange(line.range)
     }),
   )
