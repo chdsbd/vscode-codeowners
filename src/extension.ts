@@ -106,6 +106,12 @@ class LinkProvider implements vscode.DocumentLinkProvider {
 
       if (range) {
         const username = document.getText(range)
+
+        // don't make emails clickable
+        // e.g. docs@example.com
+        if (!username.startsWith("@")) {
+          continue
+        }
         const link = new vscode.DocumentLink(
           range,
           githubUserToUrl(username.replace(/^@/, "")),
