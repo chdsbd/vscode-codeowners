@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2.2.0 - 2023-01-02
+
+### Added
+
+- Usernames in CODEOWNERS files are now clickable links to the GitHub profile or team page. (#6)
+
+### Changed
+
+- Clicking status bar now opens line in CODEOWNERS file. (#6)
+- Status bar tooltip now includes line number in CODEOWNERS file. (#6)
+
 ## 2.1.0 - 2023-02-28
 
 ### Changed
