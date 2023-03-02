@@ -2,21 +2,18 @@ import vscode from "vscode"
 import findUp from "find-up"
 import path from "path"
 
-type CodeOwners = {
-  getOwnership(
-    codeownersFilePath: string,
-    filePaths: string[],
-  ): Promise<{ owners: string[] }[]>
-}
-const GitHubCodeowners: CodeOwners = require("@snyk/github-codeowners/dist/lib/ownership")
+import { OwnershipEngine } from "@snyk/github-codeowners/dist/lib/ownership"
 
 const COMMAND_ID = "github-code-owners.show-owners"
 
 const STATUS_BAR_PRIORITY = 100
 
-async function getOwners(): Promise<string[] | null> {
+async function getOwnership(): Promise<{
+  owners: string[]
+  lineno: number
+} | null> {
   if (!vscode.window.activeTextEditor) {
-    return []
+    return null
   }
 
   const { fileName, uri } = vscode.window.activeTextEditor.document
@@ -38,16 +35,14 @@ async function getOwners(): Promise<string[] | null> {
 
   const file = fileName.split(`${workspacePath}${path.sep}`)[1]
 
-  try {
-    const res = await GitHubCodeowners.getOwnership(codeownersFilePath, [file])
-    if (res.length > 0) {
-      return res[0].owners.map((x) => x.replace(/^@/, ""))
-    }
-    return []
-  } catch (e) {
-    console.error(e)
-    return []
+  const codeOwners = OwnershipEngine.FromCodeownersFile(codeownersFilePath)
+  const res = codeOwners.calcFileOwnership(file)
+
+  if (res == null) {
+    return null
   }
+
+  return { ...res, owners: res.owners.map((x) => x.replace(/^@/, "")) }
 }
 
 function formatNames(owners: string[]): string {
@@ -62,18 +57,24 @@ function formatNames(owners: string[]): string {
   }
 }
 
-function formatToolTip(owners: string[]): string {
+function formatToolTip({
+  owners,
+  lineno,
+}: {
+  owners: string[]
+  lineno: number
+}): string {
   if (owners.length === 0) {
     return "No Owners"
   }
 
   if (owners.length <= 2) {
-    return `Owned by ${owners.join(" and ")}`
+    return `Owned by ${owners.join(" and ")}\n(from CODEOWNERS line ${lineno})`
   }
 
   return `Owned by ${owners.slice(0, owners.length - 1).join(", ")} and ${
     owners[owners.length - 1]
-  }`
+  }\n(from CODEOWNERS line ${lineno})`
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -89,16 +90,18 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(COMMAND_ID, async () => {
-      const owners = await getOwners()
+      const owners = await getOwnership()
       if (owners == null) {
         return
       }
-      const res = await vscode.window.showQuickPick(
-        owners.map((owner) => ({
+      const quickPickItems: vscode.QuickPickItem[] = owners.owners.map(
+        (owner) => ({
           label: owner.replace(/^@/, ""),
           description: "View in GitHub",
-        })),
+          detail: `from CODEOWNERS line ${owners.lineno}`,
+        }),
       )
+      const res = await vscode.window.showQuickPick(quickPickItems)
       if (res != null) {
         const isTeamName = res.label.includes("/")
         const githubUsername = res.label
@@ -119,16 +122,16 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(async () => {
-      const owners = await getOwners()
+      const res = await getOwnership()
 
-      if (!owners) {
+      if (!res) {
         statusBarItem.hide()
         return
       }
 
-      statusBarItem.text = `$(shield) ${formatNames(owners)}`
+      statusBarItem.text = `$(shield) ${formatNames(res.owners)}`
 
-      statusBarItem.tooltip = formatToolTip(owners)
+      statusBarItem.tooltip = formatToolTip(res)
       statusBarItem.show()
     }),
   )
