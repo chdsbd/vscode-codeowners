@@ -50,23 +50,6 @@ async function getOwnership(): Promise<{
   }
 }
 
-class GoDefinitionProvider implements vscode.DefinitionProvider {
-  public provideDefinition(
-    document: vscode.TextDocument,
-    position: vscode.Position,
-    token: vscode.CancellationToken,
-  ): Thenable<vscode.Location> {
-    console.log(document, position, token)
-    return Promise.resolve(
-      new vscode.Location(
-        vscode.Uri.parse("https://github.com"),
-
-        new vscode.Range(new vscode.Position(5, 0), new vscode.Position(5, 15)),
-      ),
-    )
-  }
-}
-
 function formatNames(owners: string[]): string {
   if (owners.length > 2) {
     return `${owners[0]} & ${owners.length - 1} others`
@@ -99,77 +82,15 @@ function formatToolTip({
   }\n(from CODEOWNERS line ${lineno})`
 }
 
-/**
- * CodelensProvider
- */
-export class CodelensProvider implements vscode.CodeLensProvider {
-  private codeLenses: vscode.CodeLens[] = []
-  private regex: RegExp
-  private _onDidChangeCodeLenses: vscode.EventEmitter<void> =
-    new vscode.EventEmitter<void>()
-  public readonly onDidChangeCodeLenses: vscode.Event<void> =
-    this._onDidChangeCodeLenses.event
-
-  constructor() {
-    this.regex = /\S*@\S+/g
-
-    vscode.workspace.onDidChangeConfiguration((_) => {
-      this._onDidChangeCodeLenses.fire()
-    })
-  }
-
-  public provideCodeLenses(
+class LinkProvider implements vscode.DocumentLinkProvider {
+  public provideDocumentLinks(
     document: vscode.TextDocument,
     token: vscode.CancellationToken,
-  ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
-    if (true) {
-      this.codeLenses = []
-      const regex = new RegExp(this.regex)
-      const text = document.getText()
-      let matches
-      while ((matches = regex.exec(text)) !== null) {
-        const line = document.lineAt(document.positionAt(matches.index).line)
-        const indexOf = line.text.indexOf(matches[0])
-        const position = new vscode.Position(line.lineNumber, indexOf)
-        const range = document.getWordRangeAtPosition(
-          position,
-          new RegExp(this.regex),
-        )
-        if (range) {
-          this.codeLenses.push(new vscode.CodeLens(range))
-        }
-      }
-      return this.codeLenses
-    }
-    return []
-  }
-
-  public resolveCodeLens(
-    codeLens: vscode.CodeLens,
-    token: vscode.CancellationToken,
-  ) {
-    if (true) {
-      codeLens.command = {
-        title: "Open @vercel/turbo-oss in GitHub",
-        tooltip: "Tooltip provided by sample extension",
-        command: "codelens-sample.codelensAction",
-        arguments: ["Argument 1", false],
-      }
-      return codeLens
-    }
-    return null
-  }
-}
-
-class HoverProvider implements vscode.HoverProvider {
-  public provideHover(
-    document: vscode.TextDocument,
-    hoverPosition: vscode.Position,
-    token: vscode.CancellationToken,
-  ): vscode.Hover | null {
+  ): vscode.ProviderResult<vscode.DocumentLink[]> {
     const regex = new RegExp(/\S*@\S+/g)
     const text = document.getText()
     let matches
+    const links = []
     while ((matches = regex.exec(text)) !== null) {
       const line = document.lineAt(document.positionAt(matches.index).line)
       const indexOf = line.text.indexOf(matches[0])
@@ -179,7 +100,7 @@ class HoverProvider implements vscode.HoverProvider {
         new RegExp(/\S*@\S+/g),
       )
 
-      if (range && range.contains(hoverPosition)) {
+      if (range) {
         const md = new vscode.MarkdownString()
         const username = document.getText(range)
         md.appendMarkdown(
@@ -188,27 +109,16 @@ class HoverProvider implements vscode.HoverProvider {
           )})`,
         )
         // this.codeLenses.push(new vscode.CodeLens(range))
-        return new vscode.Hover(md, range)
+        const link = new vscode.DocumentLink(
+          range,
+          githubUserToUrl(username.replace(/^@/, "")),
+        )
+        link.tooltip = "View user in Github"
+
+        links.push(link)
       }
     }
-
-    // const ref = trackedSearch.findInlineAt(IDENTIFIER_REGEX, document, position)
-    // if (ref) {
-    //   const md = new vscode.MarkdownString()
-    //   const potentialDeclarationRe = new RegExp(
-    //     "\\b(parameter|localparam|input|output|inout|wire|bit|logic|reg)\\b.*?" +
-    //       trackedSearch.escapeRegex(ref.text),
-    //     "g",
-    //   )
-    //   const decl = trackedSearch.findNext(potentialDeclarationRe, document)
-    //   if (decl) {
-    //     const declLine = document.lineAt(decl.range.start.line).text.trim()
-    //     md.appendText("sample\n\n")
-    //     md.appendCodeblock(declLine, document.languageId)
-    //     return new vscode.Hover(md, ref.range)
-    //   }
-    // }
-    return null
+    return links
   }
 }
 
@@ -225,17 +135,9 @@ function githubUserToUrl(username: string): vscode.Uri {
 export function activate(context: vscode.ExtensionContext) {
   console.log("CODEOWNERS: activated")
 
-  // const codelensProvider = new CodelensProvider()
-
-  const hoverProvider = new HoverProvider()
-  vscode.languages.registerHoverProvider("codeowners", hoverProvider)
-  // vscode.languages.registerCodeLensProvider("codeowners", codelensProvider)
-
-  context.subscriptions.push(
-    vscode.languages.registerDefinitionProvider(
-      "codeowners",
-      new GoDefinitionProvider(),
-    ),
+  vscode.languages.registerDocumentLinkProvider(
+    "codeowners",
+    new LinkProvider(),
   )
 
   const statusBarItem = vscode.window.createStatusBarItem(
@@ -268,22 +170,6 @@ export function activate(context: vscode.ExtensionContext) {
         line.range.end,
       )
       textEditor.revealRange(line.range)
-      // const res = await vscode.window.showQuickPick(quickPickItems)
-      // if (res != null) {
-      //   const isTeamName = res.label.includes("/")
-      //   const githubUsername = res.label
-
-      //   if (isTeamName) {
-      //     const [org, name] = githubUsername.split(/\//)
-      //     vscode.env.openExternal(
-      //       vscode.Uri.parse(`https://github.com/orgs/${org}/teams/${name}`),
-      //     )
-      //   } else {
-      //     vscode.env.openExternal(
-      //       vscode.Uri.parse(`https://github.com/${githubUsername}`),
-      //     )
-      //   }
-      // }
     }),
   )
 
