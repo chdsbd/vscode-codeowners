@@ -8,6 +8,32 @@ const COMMAND_ID = "github-code-owners.show-owners"
 
 const STATUS_BAR_PRIORITY = 100
 
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await vscode.workspace.fs.stat(vscode.Uri.parse(path))
+    return true
+  } catch (e: unknown) {
+    // @ts-expect-error
+    if (e.code !== "FileNotFound") {
+      console.error(e)
+    }
+    return false
+  }
+}
+const PathOptions = [".github/CODEOWNERS", "CODEOWNERS"]
+
+async function findCodeOwnersFile(
+  startDirectory: string,
+): Promise<string | null> {
+  for (const pathOption of PathOptions) {
+    const codeownersPath = path.join(startDirectory, pathOption)
+    if (await fileExists(codeownersPath)) {
+      return codeownersPath
+    }
+  }
+  return null
+}
+
 async function getOwnership(): Promise<{
   owners: string[]
   lineno: number
@@ -29,7 +55,7 @@ async function getOwnership(): Promise<{
     uri: { fsPath: workspacePath },
   } = workspaceFolder
 
-  const codeownersFilePath = findUp.sync("CODEOWNERS", { cwd: workspacePath })
+  const codeownersFilePath = await findCodeOwnersFile(workspacePath)
   if (codeownersFilePath == null) {
     return null
   }
