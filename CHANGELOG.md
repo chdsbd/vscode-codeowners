@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## 2.2.0 - 2023-01-02
+## 2.3.0 - 2023-03-06
+
+### Fixed
+
+- Find `CODEOWNERS` file in `.github/` and repository root directories. (#9)
+- Handle parsing code owners [files with inline comments](https://github.com/snyk/github-codeowners/commit/64dc4df353de62f0c96dae96897e283e66d5be37). (#9)
+
+## 2.2.0 - 2023-03-02
 
 ### Added
 
