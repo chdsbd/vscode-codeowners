@@ -104,7 +104,7 @@ function formatNames(owners: string[]): string {
   } else if (owners.length === 1) {
     return `${owners[0]}`
   } else {
-    return "None"
+    return "no owners"
   }
 }
 
