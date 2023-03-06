@@ -8,6 +8,8 @@ const COMMAND_ID = "github-code-owners.show-owners"
 
 const STATUS_BAR_PRIORITY = 100
 
+let outputChannel: vscode.OutputChannel
+
 async function fileExists(path: string): Promise<boolean> {
   try {
     await vscode.workspace.fs.stat(vscode.Uri.parse(path))
@@ -34,11 +36,16 @@ async function findCodeOwnersFile(
   return null
 }
 
-async function getOwnership(): Promise<{
-  owners: string[]
-  lineno: number
-  filePath: string
-} | null> {
+async function getOwnership(): Promise<
+  | {
+      kind: "match"
+      owners: string[]
+      lineno: number
+      filePath: string
+    }
+  | { kind: "no-match"; filePath: string; owners: []; lineno: 0 }
+  | null
+> {
   if (!vscode.window.activeTextEditor) {
     return null
   }
@@ -48,6 +55,7 @@ async function getOwnership(): Promise<{
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)
 
   if (workspaceFolder == null) {
+    outputChannel.appendLine(`Could not locate workspace for file: ${uri}`)
     return null
   }
 
@@ -57,6 +65,9 @@ async function getOwnership(): Promise<{
 
   const codeownersFilePath = await findCodeOwnersFile(workspacePath)
   if (codeownersFilePath == null) {
+    outputChannel.appendLine(
+      `Could not find code owners file for workspace path: ${workspacePath}`,
+    )
     return null
   }
 
@@ -66,11 +77,20 @@ async function getOwnership(): Promise<{
   const res = codeOwners.calcFileOwnership(file)
 
   if (res == null) {
-    return null
+    outputChannel.appendLine(`No owners for file: ${file}`)
+    return {
+      kind: "no-match",
+      filePath: codeownersFilePath,
+      owners: [],
+      lineno: 0,
+    }
   }
+
+  outputChannel.appendLine(`Found code owners for file: ${workspacePath}`)
 
   return {
     ...res,
+    kind: "match",
     owners: res.owners.map((x) => x.replace(/^@/, "")),
     filePath: codeownersFilePath,
   }
@@ -163,6 +183,7 @@ function githubUserToUrl(username: string): vscode.Uri {
 
 export function activate(context: vscode.ExtensionContext) {
   console.log("CODEOWNERS: activated")
+  outputChannel = vscode.window.createOutputChannel("Github Code Owners")
 
   vscode.languages.registerDocumentLinkProvider(
     "codeowners",
@@ -184,16 +205,18 @@ export function activate(context: vscode.ExtensionContext) {
         return
       }
       const doc = await vscode.workspace.openTextDocument(ownership.filePath)
-      const textEditor = await vscode.window.showTextDocument(doc)
-      const line = doc.lineAt(ownership.lineno)
+      if (ownership.kind === "match") {
+        const textEditor = await vscode.window.showTextDocument(doc)
+        const line = doc.lineAt(ownership.lineno)
 
-      // select the line.
-      textEditor.selection = new vscode.Selection(
-        line.range.start,
-        line.range.end,
-      )
-      // scroll the line into focus.
-      textEditor.revealRange(line.range)
+        // select the line.
+        textEditor.selection = new vscode.Selection(
+          line.range.start,
+          line.range.end,
+        )
+        // scroll the line into focus.
+        textEditor.revealRange(line.range)
+      }
     }),
   )
 

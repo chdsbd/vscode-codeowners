@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2.4.0 - 2023-03-06
+
+### Changed
+
+- Show "None" when a code owners file exists, but there are no owners for the current file. (#10)
+
 ## 2.3.0 - 2023-03-06
 
 ### Fixed
