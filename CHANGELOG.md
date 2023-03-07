@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2.5.0 - 2023-03-06
+
+### Change
+
+- Replace black and white logo with a colorful one. (#11)
+
 ## 2.4.0 - 2023-03-06
 
 ### Changed
