@@ -73,7 +73,6 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@snyk/github-codeowners": "github:chdsbd/github-codeowners#chris/line-number-information",
-    "find-up": "^5.0.0"
+    "@snyk/github-codeowners": "github:chdsbd/github-codeowners#chris/line-number-information"
   }
 }

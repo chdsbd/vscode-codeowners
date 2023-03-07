@@ -1,5 +1,4 @@
 import vscode from "vscode"
-import findUp from "find-up"
 import path from "path"
 
 import { OwnershipEngine } from "@snyk/github-codeowners/dist/lib/ownership"
