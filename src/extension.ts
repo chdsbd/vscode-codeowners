@@ -8,14 +8,14 @@ const COMMAND_ID = "github-code-owners.show-owners"
 
 const STATUS_BAR_PRIORITY = 100
 
-let outputChannel: vscode.OutputChannel
+let outputChannel: vscode.OutputChannel | null = null
 
 async function fileExists(path: string): Promise<boolean> {
   try {
     await vscode.workspace.fs.stat(vscode.Uri.parse(path))
     return true
   } catch (e: unknown) {
-    // @ts-expect-error
+    // @ts-expect-error we should see this error.
     if (e.code !== "FileNotFound") {
       console.error(e)
     }
@@ -55,7 +55,7 @@ async function getOwnership(): Promise<
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)
 
   if (workspaceFolder == null) {
-    outputChannel.appendLine(`Could not locate workspace for file: ${uri}`)
+    outputChannel?.appendLine(`Could not locate workspace for file: ${uri}`)
     return null
   }
 
@@ -65,7 +65,7 @@ async function getOwnership(): Promise<
 
   const codeownersFilePath = await findCodeOwnersFile(workspacePath)
   if (codeownersFilePath == null) {
-    outputChannel.appendLine(
+    outputChannel?.appendLine(
       `Could not find code owners file for workspace path: ${workspacePath}`,
     )
     return null
@@ -77,7 +77,7 @@ async function getOwnership(): Promise<
   const res = codeOwners.calcFileOwnership(file)
 
   if (res == null) {
-    outputChannel.appendLine(`No owners for file: ${file}`)
+    outputChannel?.appendLine(`No owners for file: ${file}`)
     return {
       kind: "no-match",
       filePath: codeownersFilePath,
@@ -86,7 +86,7 @@ async function getOwnership(): Promise<
     }
   }
 
-  outputChannel.appendLine(`Found code owners for file: ${workspacePath}`)
+  outputChannel?.appendLine(`Found code owners for file: ${workspacePath}`)
 
   return {
     ...res,
@@ -134,11 +134,12 @@ function formatToolTip({
 class LinkProvider implements vscode.DocumentLinkProvider {
   public provideDocumentLinks(
     document: vscode.TextDocument,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
     const regex = new RegExp(/\S*@\S+/g)
     const text = document.getText()
-    let matches
+    let matches: RegExpExecArray | null = null
     const links = []
     // loop copied from https://github.com/microsoft/vscode-extension-samples/blob/dfb20f12d425bad2ede0f1faae25e0775ca750eb/codelens-sample/src/CodelensProvider.ts#L24-L37
     while ((matches = regex.exec(text)) !== null) {
