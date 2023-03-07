@@ -1,6 +1,6 @@
 # [github-code-owners](https://github.com/chdsbd/vscode-github-code-owners) [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/chdsbd.github-code-owners.svg)](https://marketplace.visualstudio.com/items?itemName=chdsbd.github-code-owners#overview) [![LICENSE](https://img.shields.io/github/license/chdsbd/vscode-github-code-owners.svg)](https://github.com/chdsbd/vscode-github-code-owners/blob/master/LICENSE)
 
-<p align=center><img src="https://github.com/chdsbd/vscode-github-code-owners/raw/master/images/logo256.png" alt="" width="200" height="200"></p>
+<img src="https://github.com/chdsbd/vscode-github-code-owners/raw/master/images/logo256.png" alt="" width="200" height="200">
 
 A VS Code extension to display the GitHub Code Owners for the current file, as defined in the [CODEOWNERS](https://help.github.com/articles/about-codeowners/) file.
 
