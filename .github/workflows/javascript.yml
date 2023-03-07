@@ -1,0 +1,43 @@
+name: Javascript
+
+on: [push, pull_request]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "19.x"
+      - name: Install dependencies
+        run: npm ci
+      - name: Typescript
+        run: ./s/typecheck
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "19.x"
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint JS
+        run: ./s/eslint
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "19.x"
+      - name: Install dependencies
+        run: npm ci
+      - name: Check Formatting
+        run: ./s/fmt

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -ex
+
+main() {
+    ./node_modules/.bin/esbuild ./src/extension.ts \
+        --bundle \
+        --platform=node \
+        --external:vscode \
+        --outfile=out/extension.js
+}
+
+main "$@"

@@ -60,11 +60,7 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "./node_modules/.bin/esbuild ./src/extension.ts --bundle --platform=node --external:vscode --outfile=out/extension.js",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "format": "./node_modules/.bin/prettier --write src/**/* *.md *.json",
-    "format:ci": "./node_modules/.bin/prettier --check src/**/* *.md *.json"
+    "vscode:prepublish": "./s/build"
   },
   "devDependencies": {
     "@types/node": "^18.14.2",
