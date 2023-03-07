@@ -74,5 +74,8 @@
   },
   "dependencies": {
     "@snyk/github-codeowners": "github:chdsbd/github-codeowners#chris/line-number-information"
+  },
+  "volta": {
+    "node": "18.14.2"
   }
 }
