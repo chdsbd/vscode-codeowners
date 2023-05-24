@@ -15,7 +15,7 @@
     "comment": {
       "patterns": [
         {
-          "begin": "#.+",
+          "begin": "#.*",
           "captures": {
             "0": {
               "name": "punctuation.definition.comment.codeowners"

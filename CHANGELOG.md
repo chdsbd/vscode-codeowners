@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 2.5.1 - 2023-04-24
+
+### Fixed
+
+- Fix syntax highlight for lines with a single `#`.
+
 ## 2.5.0 - 2023-03-06
 
 ### Change
