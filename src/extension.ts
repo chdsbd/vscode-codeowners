@@ -130,13 +130,9 @@ function formatToolTip({
   }\n(from CODEOWNERS line ${lineno})`
 }
 
-// function getCurrentLine() {}
-
 async function provideBlockCompletionItems(
   document: vscode.TextDocument,
   position: vscode.Position,
-  token?: vscode.CancellationToken,
-  // sdfsdf?: vscode.CompletionTriggerKind,
 ): Promise<vscode.CompletionItem[] | undefined> {
   const line = document.lineAt(position.line)
   if (!line.text.startsWith("/")) {
@@ -145,8 +141,6 @@ async function provideBlockCompletionItems(
   const t = document.getText(
     new vscode.Range(new vscode.Position(position.line, 0), position),
   )
-  // const range = document.getWordRangeAtPosition(position, )
-  console.log({ document, position, token, line, t })
 
   const x = dirname(dirname(document.uri.fsPath))
   console.log(document.uri.fsPath, x)
@@ -155,7 +149,6 @@ async function provideBlockCompletionItems(
   try {
     files = fs.readdirSync(myPath, { withFileTypes: true })
   } catch (e) {
-    console.error(e)
     return []
   }
 
@@ -164,81 +157,14 @@ async function provideBlockCompletionItems(
     const kind = isDirectory
       ? vscode.CompletionItemKind.Folder
       : vscode.CompletionItemKind.File
-    const label = isDirectory ? x.name + "/" : x.name
     return {
-      label,
-      insertText: x.name,
+      label: x.name,
       sortText: `${isDirectory ? "a" : "b"}:${x.name}`,
       kind,
-      command: isDirectory
-        ? {
-            command: "default:type",
-            title: "triggerSuggest",
-            arguments: [
-              {
-                text: "/",
-              },
-            ],
-          }
-        : undefined,
     }
   })
 
   return _.sortBy(completionItems, (x) => x.kind + "?" + x.label)
-
-  //  dirname(dirname(document.uri.fsPath))
-
-  const ls = `
-api.ts
-assert.ts
-auth.ts
-browser.ts
-bulma.sass
-classnames.ts
-clipboard.ts
-components
-date.test.ts
-date.ts
-dragDrop.ts
-globals.d.ts
-hooks.ts
-http.ts
-input.test.ts
-input.ts
-main.tsx
-ordering.ts
-pages
-parseIntOrNull.ts
-position.ts
-queries
-query-parser.test.ts
-query-parser.ts
-query.ts
-result.ts
-sass
-search.test.ts
-search.ts
-settings.ts
-sorters.test.ts
-sorters.ts
-static
-testUtils.ts
-text.test.ts
-text.ts
-theme.ts
-time.ts
-toast.ts
-urls.test.ts
-urls.ts
-useIntersectionObserver.ts
-utils
-uuid.ts
-webdata.ts
-`
-  return ls.split("\n").map((x) => ({
-    label: x,
-    kind: vscode.CompletionItemKind.Folder,
-  }))
 }
 
 /**
@@ -344,6 +270,7 @@ export function activate(context: vscode.ExtensionContext) {
     ),
   )
   context.subscriptions.push(
+    // TODO
     vscode.languages.registerHoverProvider("codeowners", {
       provideHover(document, position, token) {
         console.log({ document, position, token })
