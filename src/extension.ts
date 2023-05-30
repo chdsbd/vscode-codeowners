@@ -1,5 +1,7 @@
-import vscode from "vscode"
-import path from "path"
+import vscode, { Uri } from "vscode"
+import path, { dirname } from "path"
+import fs from "fs"
+import _ from "lodash"
 
 import { OwnershipEngine } from "@snyk/github-codeowners/dist/lib/ownership"
 
@@ -23,6 +25,7 @@ async function fileExists(path: string): Promise<boolean> {
 }
 const PathOptions = [".github/CODEOWNERS", "CODEOWNERS"]
 
+class Blah {}
 async function findCodeOwnersFile(
   startDirectory: string,
 ): Promise<string | null> {
@@ -127,6 +130,117 @@ function formatToolTip({
   }\n(from CODEOWNERS line ${lineno})`
 }
 
+// function getCurrentLine() {}
+
+async function provideBlockCompletionItems(
+  document: vscode.TextDocument,
+  position: vscode.Position,
+  token?: vscode.CancellationToken,
+  // sdfsdf?: vscode.CompletionTriggerKind,
+): Promise<vscode.CompletionItem[] | undefined> {
+  const line = document.lineAt(position.line)
+  if (!line.text.startsWith("/")) {
+    return []
+  }
+  const t = document.getText(
+    new vscode.Range(new vscode.Position(position.line, 0), position),
+  )
+  // const range = document.getWordRangeAtPosition(position, )
+  console.log({ document, position, token, line, t })
+
+  const x = dirname(dirname(document.uri.fsPath))
+  console.log(document.uri.fsPath, x)
+  const myPath = x + t
+  let files = []
+  try {
+    files = fs.readdirSync(myPath, { withFileTypes: true })
+  } catch (e) {
+    console.error(e)
+    return []
+  }
+
+  const completionItems = files.map((x): vscode.CompletionItem => {
+    const isDirectory = x.isDirectory()
+    const kind = isDirectory
+      ? vscode.CompletionItemKind.Folder
+      : vscode.CompletionItemKind.File
+    const label = isDirectory ? x.name + "/" : x.name
+    return {
+      label,
+      insertText: x.name,
+      sortText: `${isDirectory ? "a" : "b"}:${x.name}`,
+      kind,
+      command: isDirectory
+        ? {
+            command: "default:type",
+            title: "triggerSuggest",
+            arguments: [
+              {
+                text: "/",
+              },
+            ],
+          }
+        : undefined,
+    }
+  })
+
+  return _.sortBy(completionItems, (x) => x.kind + "?" + x.label)
+
+  //  dirname(dirname(document.uri.fsPath))
+
+  const ls = `
+api.ts
+assert.ts
+auth.ts
+browser.ts
+bulma.sass
+classnames.ts
+clipboard.ts
+components
+date.test.ts
+date.ts
+dragDrop.ts
+globals.d.ts
+hooks.ts
+http.ts
+input.test.ts
+input.ts
+main.tsx
+ordering.ts
+pages
+parseIntOrNull.ts
+position.ts
+queries
+query-parser.test.ts
+query-parser.ts
+query.ts
+result.ts
+sass
+search.test.ts
+search.ts
+settings.ts
+sorters.test.ts
+sorters.ts
+static
+testUtils.ts
+text.test.ts
+text.ts
+theme.ts
+time.ts
+toast.ts
+urls.test.ts
+urls.ts
+useIntersectionObserver.ts
+utils
+uuid.ts
+webdata.ts
+`
+  return ls.split("\n").map((x) => ({
+    label: x,
+    kind: vscode.CompletionItemKind.Folder,
+  }))
+}
+
 /**
  * Add links to usernames in CODEOWNERS file that open on GitHub.
  */
@@ -217,6 +331,29 @@ export function activate(context: vscode.ExtensionContext) {
         // scroll the line into focus.
         textEditor.revealRange(line.range)
       }
+    }),
+  )
+
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider(
+      "codeowners",
+      {
+        provideCompletionItems: provideBlockCompletionItems,
+      },
+      "/",
+    ),
+  )
+  context.subscriptions.push(
+    vscode.languages.registerHoverProvider("codeowners", {
+      provideHover(document, position, token) {
+        console.log({ document, position, token })
+        // const line = document.lineAt(position.line)
+        // if (line.text.match(/^\s/))
+        return {
+          contents: ["Matches all files with the same name"],
+        }
+        // return { contents: [] }
+      },
     }),
   )
 

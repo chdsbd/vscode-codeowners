@@ -5,32 +5,29 @@
       "include": "#comment"
     },
     {
-      "include": "#pattern"
+      "include": "#absolute-path-matcher"
     },
     {
-      "include": "#owner"
+      "include": "#pattern-matcher"
+    },
+    {
+      "include": "#owner-matcher"
     }
   ],
   "repository": {
     "comment": {
-      "patterns": [
-        {
-          "begin": "#.*",
-          "captures": {
-            "0": {
-              "name": "punctuation.definition.comment.codeowners"
-            }
-          },
-          "end": "$",
-          "name": "comment.line.codeowners"
-        }
-      ]
+      "match": "\\s*(#.*)",
+      "name": "comment.line.codeowners"
     },
-    "pattern": {
+    "absolute-path-matcher": {
+      "match": "^\\s*(/\\S+)",
+      "name": "entity.name.function.codeowners"
+    },
+    "pattern-matcher": {
       "match": "^\\s*(\\S+)",
-      "name": "variable.other.codeowners"
+      "name": "entity.name.type.codeowners"
     },
-    "owner": {
+    "owner-matcher": {
       "match": "\\S*@\\S+",
       "name": "storage.type.function.codeowners"
     }
