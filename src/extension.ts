@@ -274,10 +274,45 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerHoverProvider("codeowners", {
       provideHover(document, position, token) {
         console.log({ document, position, token })
-        // const line = document.lineAt(position.line)
+        const line = document.lineAt(position.line)
         // if (line.text.match(/^\s/))
+        console.log(line)
+        const start = line.text.split(" ")[0]
+        console.log({ start })
+        const m = line.text.match(/^\s*(\S+)/)?.[1]
+        if (m == null) {
+          return { contents: [] }
+        }
+        const idx = line.text.indexOf(m)
+
+        const workspaceDir = dirname(dirname(document.uri.fsPath))
+        const myPath = workspaceDir + "/" + m
+
+        let isDirectory: boolean | null = null
+        try {
+          isDirectory = fs.statSync(myPath).isDirectory()
+        } catch (e) {
+          console.error(e)
+        }
+        const x = new vscode.MarkdownString()
+        x.appendCodeblock(m)
+
+        const isPattern = !m.startsWith("/")
+
         return {
-          contents: ["Matches all files with the same name"],
+          range: new vscode.Range(
+            new vscode.Position(position.line, idx),
+            new vscode.Position(position.line, idx + m.length),
+          ),
+          contents: [
+            x,
+            isPattern
+              ? "Matches all files with same name"
+              : isDirectory
+              ? `Matches all files in directory and subdirectories`
+              : `Matches path exactly`,
+            // !isPattern && isDirectory == null ? "Path does not exist" : "",
+          ],
         }
         // return { contents: [] }
       },
