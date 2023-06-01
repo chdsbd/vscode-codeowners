@@ -1,439 +1,60 @@
 import vscode from "vscode"
-import path, { dirname } from "path"
-import fs from "fs"
-import _ from "lodash"
 
-import { OwnershipEngine } from "@snyk/github-codeowners/dist/lib/ownership"
+import { GitHubUsernamesLinkProvider } from "./github-usernames-link-provider"
+import { PathCompletionItemProvider } from "./path-completion-item-provider"
+import { OwnerNameCompletionItemProvider } from "./owner-name-completion-item-provider"
+import { showOwnersCommandHandler } from "./show-owners-command"
+import { CodeownersHoverProvider } from "./codeowners-hover-provider"
+import { statusBarTextEditorListener } from "./status-bar-text-editor-listener"
 
 const COMMAND_ID = "github-code-owners.show-owners"
 
 const STATUS_BAR_PRIORITY = 100
 
-let outputChannel: vscode.OutputChannel | null = null
-
-async function fileExists(path: string): Promise<boolean> {
-  try {
-    await vscode.workspace.fs.stat(vscode.Uri.parse(path))
-    return true
-  } catch (e: unknown) {
-    // @ts-expect-error we should see this error.
-    if (e.code !== "FileNotFound") {
-      console.error(e)
-    }
-    return false
-  }
-}
-const PathOptions = [".github/CODEOWNERS", "CODEOWNERS"]
-
-async function findCodeOwnersFile(
-  startDirectory: string,
-): Promise<string | null> {
-  for (const pathOption of PathOptions) {
-    const codeownersPath = path.join(startDirectory, pathOption)
-    if (await fileExists(codeownersPath)) {
-      return codeownersPath
-    }
-  }
-  return null
-}
-
-async function getOwnership(): Promise<
-  | {
-      kind: "match"
-      owners: string[]
-      lineno: number
-      filePath: string
-    }
-  | { kind: "no-match"; filePath: string; owners: []; lineno: 0 }
-  | null
-> {
-  if (!vscode.window.activeTextEditor) {
-    return null
-  }
-
-  const { fileName, uri } = vscode.window.activeTextEditor.document
-
-  const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)
-
-  if (workspaceFolder == null) {
-    outputChannel?.appendLine(`Could not locate workspace for file: ${uri}`)
-    return null
-  }
-
-  const {
-    uri: { fsPath: workspacePath },
-  } = workspaceFolder
-
-  const codeownersFilePath = await findCodeOwnersFile(workspacePath)
-  if (codeownersFilePath == null) {
-    outputChannel?.appendLine(
-      `Could not find code owners file for workspace path: ${workspacePath}`,
-    )
-    return null
-  }
-
-  const file = fileName.split(`${workspacePath}${path.sep}`)[1]
-
-  const codeOwners = OwnershipEngine.FromCodeownersFile(codeownersFilePath)
-  const res = codeOwners.calcFileOwnership(file)
-
-  if (res == null) {
-    outputChannel?.appendLine(`No owners for file: ${file}`)
-    return {
-      kind: "no-match",
-      filePath: codeownersFilePath,
-      owners: [],
-      lineno: 0,
-    }
-  }
-
-  outputChannel?.appendLine(`Found code owners for file: ${workspacePath}`)
-
-  return {
-    ...res,
-    kind: "match",
-    owners: res.owners.map((x) => x.replace(/^@/, "")),
-    filePath: codeownersFilePath,
-  }
-}
-
-function formatNames(owners: string[]): string {
-  if (owners.length > 2) {
-    return `${owners[0]} & ${owners.length - 1} others`
-  } else if (owners.length === 2) {
-    return `${owners[0]} & 1 other`
-  } else if (owners.length === 1) {
-    return `${owners[0]}`
-  } else {
-    return "no owners"
-  }
-}
-
-function formatToolTip({
-  owners,
-  lineno,
-}: {
-  owners: string[]
-  lineno: number
-}): string {
-  if (owners.length === 0) {
-    return "No Owners"
-  }
-
-  if (owners.length <= 2) {
-    return `Owned by ${owners.join(" and ")}\n(from CODEOWNERS line ${lineno})`
-  }
-
-  return `Owned by ${owners.slice(0, owners.length - 1).join(", ")} and ${
-    owners[owners.length - 1]
-  }\n(from CODEOWNERS line ${lineno})`
-}
-
-async function provideBlockCompletionItems(
-  document: vscode.TextDocument,
-  position: vscode.Position,
-): Promise<vscode.CompletionItem[] | undefined> {
-  const line = document.lineAt(position.line)
-  if (!line.text.startsWith("/")) {
-    return []
-  }
-  const t = document.getText(
-    new vscode.Range(new vscode.Position(position.line, 0), position),
-  )
-
-  const x = dirname(dirname(document.uri.fsPath))
-  console.log(document.uri.fsPath, x)
-  const myPath = x + t
-  let files = []
-  try {
-    const r = await vscode.workspace.fs.readDirectory(vscode.Uri.parse(myPath))
-    const [name, type] = r[0]
-    type
-    files = fs.readdirSync(myPath, { withFileTypes: true })
-  } catch (e) {
-    return []
-  }
-
-  const completionItems = files.map((x): vscode.CompletionItem => {
-    const isDirectory = x.isDirectory()
-    const kind = isDirectory
-      ? vscode.CompletionItemKind.Folder
-      : vscode.CompletionItemKind.File
-    return {
-      label: x.name,
-      sortText: `${isDirectory ? "a" : "b"}:${x.name}`,
-      kind,
-    }
-  })
-
-  return _.sortBy(completionItems, (x) => x.kind + "?" + x.label)
-}
-
-function findUsersAndTeamsFromDocument(
-  document: vscode.TextDocument,
-): string[] {
-  const docText = document.getText()
-
-  const lines = docText.split("\n")
-
-  const usernames = new Set<string>()
-  for (const line of lines) {
-    // ignore comments.
-    if (line.match(/^\s*#/)) {
-      continue
-    }
-    const pm = line.match(/^\s*([^\s]+)/)
-    if (pm == null) {
-      continue
-    }
-    const pattern = pm[1]
-    if (pattern == null) {
-      continue
-    }
-    for (const usernameMatch of line.matchAll(/\s(\S*@\S+)/g)) {
-      const username = usernameMatch[1]
-      if (username == null) {
-        continue
-      }
-      usernames.add(username.replace(/^@/, ""))
-    }
-  }
-  return _.sortBy(Array.from(usernames), (x) => {
-    if (x.includes("/")) {
-      // place groups first
-      return " " + x
-    }
-    return x
-  })
-  // return _.orderBy(Array.from(usernames), x => x, ['asc'])
-}
-
-async function provideOwnerNameCompletionItems(
-  document: vscode.TextDocument,
-  position: vscode.Position,
-): Promise<vscode.CompletionItem[] | undefined> {
-  return findUsersAndTeamsFromDocument(document).map((x, idx) => ({
-    label: x,
-    // special case for emails?. Maybe delete this?
-    range: x.match(/\S+@\S+/)
-      ? {
-          inserting: new vscode.Range(
-            position.with(undefined, position.character - 1),
-            position.with(undefined, position.character - 1 + x.length - 1),
-          ),
-          replacing: new vscode.Range(
-            position.with(undefined, position.character - 1),
-            position,
-          ),
-        }
-      : undefined,
-    sortText: idx.toString(),
-    kind: vscode.CompletionItemKind.User,
-  }))
-  return [
-    {
-      kind: vscode.CompletionItemKind.User,
-      label: "chdsbd",
-      insertText: "chdsbd",
-    },
-    {
-      label: "segmentio/fs-cx-services",
-      kind: vscode.CompletionItemKind.User,
-
-      // filterText: "segmentio/fs-cx-services@",
-    },
-    {
-      label: "segmentio-billing",
-      kind: vscode.CompletionItemKind.User,
-
-      // filterText: "@segmentio-billing@",
-    },
-    {
-      label: "doctocat",
-      // insertText: "doctocat",
-      kind: vscode.CompletionItemKind.User,
-    },
-  ]
-}
-
-/**
- * Add links to usernames in CODEOWNERS file that open on GitHub.
- */
-class LinkProvider implements vscode.DocumentLinkProvider {
-  public provideDocumentLinks(
-    document: vscode.TextDocument,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    token: vscode.CancellationToken,
-  ): vscode.ProviderResult<vscode.DocumentLink[]> {
-    const regex = new RegExp(/\S*@\S+/g)
-    const text = document.getText()
-    let matches: RegExpExecArray | null = null
-    const links = []
-    // loop copied from https://github.com/microsoft/vscode-extension-samples/blob/dfb20f12d425bad2ede0f1faae25e0775ca750eb/codelens-sample/src/CodelensProvider.ts#L24-L37
-    while ((matches = regex.exec(text)) !== null) {
-      const line = document.lineAt(document.positionAt(matches.index).line)
-      const indexOf = line.text.indexOf(matches[0])
-      const position = new vscode.Position(line.lineNumber, indexOf)
-      const range = document.getWordRangeAtPosition(
-        position,
-        new RegExp(/\S*@\S+/g),
-      )
-
-      if (range) {
-        const username = document.getText(range)
-
-        // don't make emails clickable
-        // e.g. docs@example.com
-        if (!username.startsWith("@")) {
-          continue
-        }
-        const link = new vscode.DocumentLink(
-          range,
-          githubUserToUrl(username.replace(/^@/, "")),
-        )
-        link.tooltip = `View ${username} on Github`
-
-        links.push(link)
-      }
-    }
-    return links
-  }
-}
-
-function githubUserToUrl(username: string): vscode.Uri {
-  const isTeamName = username.includes("/")
-
-  if (isTeamName) {
-    const [org, name] = username.split(/\//)
-    return vscode.Uri.parse(`https://github.com/orgs/${org}/teams/${name}`)
-  }
-  return vscode.Uri.parse(`https://github.com/${username}`)
-}
-
 export function activate(context: vscode.ExtensionContext) {
   console.log("CODEOWNERS: activated")
-  outputChannel = vscode.window.createOutputChannel("Github Code Owners")
+  const outputChannel = vscode.window.createOutputChannel("Github Code Owners")
 
   vscode.languages.registerDocumentLinkProvider(
     "codeowners",
-    new LinkProvider(),
+    new GitHubUsernamesLinkProvider(),
   )
-
-  const statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    STATUS_BAR_PRIORITY,
-  )
-
-  statusBarItem.command = COMMAND_ID
-  context.subscriptions.push(statusBarItem)
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(COMMAND_ID, async () => {
-      const ownership = await getOwnership()
-      if (ownership == null) {
-        return
-      }
-      const doc = await vscode.workspace.openTextDocument(ownership.filePath)
-      if (ownership.kind === "match") {
-        const textEditor = await vscode.window.showTextDocument(doc)
-        const line = doc.lineAt(ownership.lineno)
-
-        // select the line.
-        textEditor.selection = new vscode.Selection(
-          line.range.start,
-          line.range.end,
-        )
-        // scroll the line into focus.
-        textEditor.revealRange(line.range)
-      }
-    }),
+    vscode.commands.registerCommand(COMMAND_ID, showOwnersCommandHandler),
   )
 
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
       "codeowners",
-      {
-        provideCompletionItems: provideOwnerNameCompletionItems,
-      },
+      new OwnerNameCompletionItemProvider(),
       "@",
     ),
   )
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
       "codeowners",
-      {
-        provideCompletionItems: provideBlockCompletionItems,
-      },
+      new PathCompletionItemProvider(),
       "/",
     ),
   )
   context.subscriptions.push(
-    // TODO
-    vscode.languages.registerHoverProvider("codeowners", {
-      provideHover(document, position, token) {
-        console.log({ document, position, token })
-        const line = document.lineAt(position.line)
-        // if (line.text.match(/^\s/))
-        console.log(line)
-        const start = line.text.split(" ")[0]
-        console.log({ start })
-        const m = line.text.match(/^\s*(\S+)/)?.[1]
-        if (m == null) {
-          return { contents: [] }
-        }
-        const idx = line.text.indexOf(m)
-
-        const workspaceDir = dirname(dirname(document.uri.fsPath))
-        const myPath = workspaceDir + "/" + m
-
-        let isDirectory: boolean | null = null
-        try {
-          isDirectory = fs.statSync(myPath).isDirectory()
-        } catch (e) {
-          console.error(e)
-        }
-        const x = new vscode.MarkdownString()
-        x.appendCodeblock(m)
-
-        const isPattern = !m.startsWith("/")
-
-        const range = new vscode.Range(
-          new vscode.Position(position.line, idx),
-          new vscode.Position(position.line, idx + m.length),
-        )
-        if (!range.contains(position)) {
-          return { contents: [] }
-        }
-        return {
-          range,
-          contents: [
-            x,
-            isPattern
-              ? "Matches all files with same name"
-              : isDirectory
-              ? `Matches all files in directory and subdirectories`
-              : `Matches path exactly`,
-            // !isPattern && isDirectory == null ? "Path does not exist" : "",
-          ],
-        }
-        // return { contents: [] }
-      },
-    }),
+    vscode.languages.registerHoverProvider(
+      "codeowners",
+      new CodeownersHoverProvider(),
+    ),
   )
 
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    STATUS_BAR_PRIORITY,
+  )
+  statusBarItem.command = COMMAND_ID
+  context.subscriptions.push(statusBarItem)
+
   context.subscriptions.push(
-    vscode.window.onDidChangeActiveTextEditor(async () => {
-      const res = await getOwnership()
-
-      if (!res) {
-        statusBarItem.hide()
-        return
-      }
-
-      statusBarItem.text = `$(shield) ${formatNames(res.owners)}`
-
-      statusBarItem.tooltip = formatToolTip(res)
-      statusBarItem.show()
-    }),
+    vscode.window.onDidChangeActiveTextEditor(
+      statusBarTextEditorListener(statusBarItem, outputChannel),
+    ),
   )
 }
