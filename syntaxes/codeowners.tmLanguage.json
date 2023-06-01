@@ -28,7 +28,7 @@
       "name": "entity.name.type.codeowners"
     },
     "owner-matcher": {
-      "match": "\\S*@\\S+",
+      "match": "\\S*\\s\\S*@\\S*",
       "name": "storage.type.function.codeowners"
     }
   },

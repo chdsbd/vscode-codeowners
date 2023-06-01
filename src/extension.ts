@@ -1,4 +1,4 @@
-import vscode, { Uri } from "vscode"
+import vscode from "vscode"
 import path, { dirname } from "path"
 import fs from "fs"
 import _ from "lodash"
@@ -25,7 +25,6 @@ async function fileExists(path: string): Promise<boolean> {
 }
 const PathOptions = [".github/CODEOWNERS", "CODEOWNERS"]
 
-class Blah {}
 async function findCodeOwnersFile(
   startDirectory: string,
 ): Promise<string | null> {
@@ -147,6 +146,9 @@ async function provideBlockCompletionItems(
   const myPath = x + t
   let files = []
   try {
+    const r = await vscode.workspace.fs.readDirectory(vscode.Uri.parse(myPath))
+    const [name, type] = r[0]
+    type
     files = fs.readdirSync(myPath, { withFileTypes: true })
   } catch (e) {
     return []
@@ -165,6 +167,93 @@ async function provideBlockCompletionItems(
   })
 
   return _.sortBy(completionItems, (x) => x.kind + "?" + x.label)
+}
+
+function findUsersAndTeamsFromDocument(
+  document: vscode.TextDocument,
+): string[] {
+  const docText = document.getText()
+
+  const lines = docText.split("\n")
+
+  const usernames = new Set<string>()
+  for (const line of lines) {
+    // ignore comments.
+    if (line.match(/^\s*#/)) {
+      continue
+    }
+    const pm = line.match(/^\s*([^\s]+)/)
+    if (pm == null) {
+      continue
+    }
+    const pattern = pm[1]
+    if (pattern == null) {
+      continue
+    }
+    for (const usernameMatch of line.matchAll(/\s(\S*@\S+)/g)) {
+      const username = usernameMatch[1]
+      if (username == null) {
+        continue
+      }
+      usernames.add(username.replace(/^@/, ""))
+    }
+  }
+  return _.sortBy(Array.from(usernames), (x) => {
+    if (x.includes("/")) {
+      // place groups first
+      return " " + x
+    }
+    return x
+  })
+  // return _.orderBy(Array.from(usernames), x => x, ['asc'])
+}
+
+async function provideOwnerNameCompletionItems(
+  document: vscode.TextDocument,
+  position: vscode.Position,
+): Promise<vscode.CompletionItem[] | undefined> {
+  return findUsersAndTeamsFromDocument(document).map((x, idx) => ({
+    label: x,
+    // special case for emails?. Maybe delete this?
+    range: x.match(/\S+@\S+/)
+      ? {
+          inserting: new vscode.Range(
+            position.with(undefined, position.character - 1),
+            position.with(undefined, position.character - 1 + x.length - 1),
+          ),
+          replacing: new vscode.Range(
+            position.with(undefined, position.character - 1),
+            position,
+          ),
+        }
+      : undefined,
+    sortText: idx.toString(),
+    kind: vscode.CompletionItemKind.User,
+  }))
+  return [
+    {
+      kind: vscode.CompletionItemKind.User,
+      label: "chdsbd",
+      insertText: "chdsbd",
+    },
+    {
+      label: "segmentio/fs-cx-services",
+      kind: vscode.CompletionItemKind.User,
+
+      // filterText: "segmentio/fs-cx-services@",
+    },
+    {
+      label: "segmentio-billing",
+      kind: vscode.CompletionItemKind.User,
+
+      // filterText: "@segmentio-billing@",
+    },
+    {
+      label: "doctocat",
+      // insertText: "doctocat",
+      kind: vscode.CompletionItemKind.User,
+    },
+  ]
 }
 
 /**
@@ -264,6 +353,15 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerCompletionItemProvider(
       "codeowners",
       {
+        provideCompletionItems: provideOwnerNameCompletionItems,
+      },
+      "@",
+    ),
+  )
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider(
+      "codeowners",
+      {
         provideCompletionItems: provideBlockCompletionItems,
       },
       "/",
@@ -299,11 +397,15 @@ export function activate(context: vscode.ExtensionContext) {
 
         const isPattern = !m.startsWith("/")
 
+        const range = new vscode.Range(
+          new vscode.Position(position.line, idx),
+          new vscode.Position(position.line, idx + m.length),
+        )
+        if (!range.contains(position)) {
+          return { contents: [] }
+        }
         return {
-          range: new vscode.Range(
-            new vscode.Position(position.line, idx),
-            new vscode.Position(position.line, idx + m.length),
-          ),
+          range,
           contents: [
             x,
             isPattern
