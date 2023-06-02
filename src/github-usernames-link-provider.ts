@@ -1,4 +1,5 @@
 import vscode from "vscode"
+import { findUsernameRanges } from "./owner-name-completion-item-provider"
 
 function githubUserToUrl(username: string): vscode.Uri {
   const isTeamName = username.includes("/")
@@ -19,20 +20,8 @@ export class GitHubUsernamesLinkProvider
   provideDocumentLinks(
     document: vscode.TextDocument,
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
-    const regex = new RegExp(/\S*@\S+/g)
-    const text = document.getText()
-    let matches: RegExpExecArray | null = null
     const links = []
-    // loop copied from https://github.com/microsoft/vscode-extension-samples/blob/dfb20f12d425bad2ede0f1faae25e0775ca750eb/codelens-sample/src/CodelensProvider.ts#L24-L37
-    while ((matches = regex.exec(text)) !== null) {
-      const line = document.lineAt(document.positionAt(matches.index).line)
-      const indexOf = line.text.indexOf(matches[0])
-      const position = new vscode.Position(line.lineNumber, indexOf)
-      const range = document.getWordRangeAtPosition(
-        position,
-        new RegExp(/\S*@\S+/g),
-      )
-
+    for (const range of findUsernameRanges(document)) {
       if (range) {
         const username = document.getText(range)
 
