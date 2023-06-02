@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
       "codeowners",
-      new PathCompletionItemProvider(),
+      new PathCompletionItemProvider(outputChannel),
       "/",
     ),
   )

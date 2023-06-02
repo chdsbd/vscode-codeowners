@@ -1,5 +1,5 @@
 import vscode from "vscode"
-import { dirname } from "path"
+import path from "path"
 import fs from "fs"
 import _ from "lodash"
 
@@ -9,9 +9,29 @@ function parseAbsolutePatternFromLine(line: vscode.TextLine) {
   return match?.[1]
 }
 
+function findRepositoryRoot(startPath: string) {
+  let directory = startPath
+  while (true) {
+    // parent folder will have git directory
+    const newPath = path.resolve(directory, ".git/index")
+    if (fs.existsSync(newPath)) {
+      return directory
+    }
+    const newParentDir = path.dirname(directory)
+    if (newParentDir === directory) {
+      return null
+    }
+    directory = newParentDir
+  }
+}
+
 export class PathCompletionItemProvider
   implements vscode.CompletionItemProvider
 {
+  outputChannel: vscode.OutputChannel
+  constructor(outputChannel: vscode.OutputChannel) {
+    this.outputChannel = outputChannel
+  }
   provideCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
@@ -20,17 +40,21 @@ export class PathCompletionItemProvider
   > {
     const line = document.lineAt(position.line)
 
+    const repositoryRoot = findRepositoryRoot(document.uri.fsPath)
+    if (repositoryRoot == null) {
+      this.outputChannel.appendLine("Could not find repository root from file")
+      return []
+    }
+
     const pattern = parseAbsolutePatternFromLine(line)
     if (pattern == null) {
       return []
     }
 
-    // FIXME: correctly discover .git root.
-    const repositoryRoot = dirname(dirname(document.uri.fsPath))
-    const myPath = repositoryRoot + pattern
+    const patternPath = path.join(repositoryRoot, pattern)
     let files = []
     try {
-      files = fs.readdirSync(myPath, { withFileTypes: true })
+      files = fs.readdirSync(patternPath, { withFileTypes: true })
     } catch (e) {
       return []
     }
