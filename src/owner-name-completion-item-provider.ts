@@ -43,6 +43,14 @@ function findUsernames(document: vscode.TextDocument) {
   })
 }
 
+/**
+ * Provide autocomplete for usernames based on the codeowners files.
+ *
+ * The "GitHub Pull Requests and Issues" extension already provides
+ * autocompletion here, so users will also see those results in their
+ * suggestions.
+ * https://github.com/microsoft/vscode-pull-request-github/blob/c52a9ccadce8c3c0238656f39e6cc268e344bbba/src/issues/userCompletionProvider.ts#LL15C1-L15C1
+ */
 export class OwnerNameCompletionItemProvider
   implements vscode.CompletionItemProvider
 {
@@ -52,27 +60,24 @@ export class OwnerNameCompletionItemProvider
   ): vscode.ProviderResult<
     vscode.CompletionItem[] | vscode.CompletionList<vscode.CompletionItem>
   > {
-    return findUsernames(document).map((owner, idx) => ({
-      label: owner,
-      // special case for emails to remove the `@` prefix.
-      range: owner.match(/\S+@\S+/)
-        ? {
-            inserting: new vscode.Range(
-              position.with(undefined, position.character - 1),
-              position.with(
-                undefined,
-                position.character - 1 + owner.length - 1,
-              ),
-            ),
-            replacing: new vscode.Range(
-              position.with(undefined, position.character - 1),
-              position,
-            ),
-          }
-        : undefined,
-      // preserve our sorted order.
-      sortText: idx.toString(),
-      kind: vscode.CompletionItemKind.User,
-    }))
+    const items = findUsernames(document).map(
+      (owner, idx): vscode.CompletionItem => {
+        const isEmail = owner.match(/\S+@\S+/)
+        return {
+          label: owner,
+          // replace the `@` trigger character.
+          range: new vscode.Range(position.translate(undefined, -1), position),
+          // need to add @ because our trigger character is used for filtering.
+          filterText: "@" + owner,
+          // emails won't have an @ in front of them.
+          insertText: !isEmail ? "@" + owner : owner,
+          // preserve our sorted order.
+          sortText: idx.toString(),
+          kind: vscode.CompletionItemKind.User,
+        }
+      },
+    )
+
+    return items
   }
 }
