@@ -36,7 +36,7 @@ function findUsernames(document: vscode.TextDocument) {
   }
   return _.sortBy(Array.from(usernames), (x) => {
     if (x.includes("/")) {
-      // place groups first
+      // place groups like acme-corp/api-review ahead of individual usernames.
       return " " + x
     }
     return x
