@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 3.0.0 - 2023-06-03
+
+### Added
+
+- syntax highlighting it differentiate between absolute patterns and nested patterns. (#17)
+- added hover provider to indicate if a pattern is absolute or nested. (#17)
+- add auto complete for usernames and absolute file patterns. (#17)
+
 ## 2.5.1 - 2023-04-24
 
 ### Fixed
