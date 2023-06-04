@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 3.0.1 - 2023-06-04
+
+### Fixed
+
+- Fix broken command handler. (#19)
+
 ## 3.0.0 - 2023-06-03
 
 ### Added

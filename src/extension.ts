@@ -21,7 +21,10 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(COMMAND_ID, showOwnersCommandHandler),
+    vscode.commands.registerCommand(
+      COMMAND_ID,
+      showOwnersCommandHandler(outputChannel),
+    ),
   )
 
   context.subscriptions.push(
