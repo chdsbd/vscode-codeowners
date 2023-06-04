@@ -40,7 +40,10 @@ Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
 #### Auto complete
 
-<video src="./images/autocomplete.mov" alt="auto complete of paths and usernames" autoplay="true" height="359px" loop="true" muted="true" playsinline="true"/>
+<video alt="auto complete of paths and usernames" autoplay="true" height="359px" loop="true" muted="true" playsinline="true">
+<source src="./images/autocomplete.mp4" type="video/mp4">
+<source src="./images/autocomplete.mov" type="video/quicktime">
+</video>
 
 #### Syntax highlighting
 
