@@ -6,6 +6,7 @@ main() {
         --bundle \
         --platform=node \
         --external:vscode \
+        --sourcemap \
         --outfile=out/extension.js
 }
 

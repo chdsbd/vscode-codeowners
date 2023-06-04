@@ -61,7 +61,7 @@
   },
   "scripts": {
     "vscode:prepublish": "./s/build",
-    "compile": "yarn run tsc"
+    "compile": "./s/build"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
