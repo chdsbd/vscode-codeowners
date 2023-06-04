@@ -28,9 +28,7 @@ With `vsce` installed from NPM (`yarn global add vsce`), clone [this repo](https
 
 Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
-<img src="./images/none.png" height="22px" alt="no code owners"/>
-<img src="./images/user.png" height="22px" alt="one user code owner"/>
-<img src="./images/team-and-other.png" height="22px" alt="a team code owner and other"/>
+<img src="./images/none.png" height="22px" alt="no code owners"/> <img src="./images/user.png" height="22px" alt="one user code owner"/> <img src="./images/team-and-other.png" height="22px" alt="a team code owner and other"/>
 
 ### Language support
 
