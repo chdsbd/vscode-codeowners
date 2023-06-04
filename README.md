@@ -40,7 +40,7 @@ Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
 #### Auto complete
 
-<img src="./images/autocomplete.gif" alt="auto complete of paths and usernames"  height="359px"/>
+<img src="./images/autocomplete.gif" alt="auto complete of paths and usernames" width="618px" height="359px"/>
 
 #### Syntax highlighting
 
