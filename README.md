@@ -28,22 +28,29 @@ With `vsce` installed from NPM (`yarn global add vsce`), clone [this repo](https
 
 Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
-![no code owners](./images/none.png)
-![one user code owner](./images/user.png)
-![a team code owner and other](./images/team-and-other.png)
+<img src="./images/none.png" height="22px" alt="no code owners"/>
+<img src="./images/user.png" height="22px" alt="one user code owner"/>
+<img src="./images/team-and-other.png" height="22px" alt="a team code owner and other"/>
+
+### Language support
+
+#### Link usernames to GitHub
+
+<img src="./images/open-in-github.png" alt="click to open username in GitHub" height="70px"/>
+
+#### Auto complete
+
+<video src="./images/autocomplete.mov" alt="auto complete of paths and usernames" autoplay="true" height="359px" loop="true" muted="true" playsinline="true"/>
+
+#### Syntax highlighting
+
+<img src="./images/syntax-highlighting.png" alt="syntax highlighting" height="284px"/>
 
 ### Command
 
 Open matching line in CODEOWNERS file with the `GitHub Code Owners: Show owners of current file` command.
 
-![code owners command](./images/command.png)
-
-### Language support
-
-Make usernames in CODEOWNERS files links to GitHub and add syntax highlighting.
-
-![click to open username in GitHub](./images/open-in-github.png)
-![syntax highlighting](./images/syntax-highlighting.png)
+<img src="./images/command.png" alt="code owners command" height="63px"/>
 
 ## Related extensions
 
