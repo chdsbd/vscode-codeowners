@@ -15,7 +15,7 @@ async function fileExists(path: string): Promise<boolean> {
     return false
   }
 }
-const PathOptions = [".github/CODEOWNERS", "CODEOWNERS"]
+const PathOptions = [".github/CODEOWNERS", "docs/CODEOWNERS", "CODEOWNERS"]
 
 async function findCodeOwnersFile(
   startDirectory: string,
