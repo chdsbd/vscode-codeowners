@@ -15,14 +15,17 @@ function githubUserToUrl(username: string): vscode.Uri {
 function getGitHubUrl(): string {
   /*
    * When using GitHub Enterprise Server, you should have a 'github-enterprise.uri'
-   * configuration setting. Let's see if we have one of those.
+   * configuration setting.
+   *
+   * This configuration option is provided by built in "GitHub Authentication" extension
+   * https://github.com/microsoft/vscode/blob/ccb95fd921349023027a0df25ed291b0992b9a18/extensions/github-authentication/src/extension.ts#L10
    */
-  const setting = vscode.workspace.getConfiguration().get<string>('github-enterprise.uri')
+  const setting = vscode.workspace
+    .getConfiguration()
+    .get<string>("github-enterprise.uri")
   if (!setting) {
-    // Doesn't appear to be a GHES workspace
-    return 'https://github.com'
+    return "https://github.com"
   }
-
   return setting
 }
 
