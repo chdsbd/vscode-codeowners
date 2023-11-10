@@ -6,6 +6,7 @@ import { OwnerNameCompletionItemProvider } from "./owner-name-completion-item-pr
 import { showOwnersCommandHandler } from "./show-owners-command"
 import { CodeownersHoverProvider } from "./codeowners-hover-provider"
 import { statusBarTextEditorListener } from "./status-bar-text-editor-listener"
+import { AlignOwnersFormattingProvider } from "./align-codeowners"
 
 const COMMAND_ID = "github-code-owners.show-owners"
 
@@ -18,6 +19,11 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.languages.registerDocumentLinkProvider(
     "codeowners",
     new GitHubUsernamesLinkProvider(),
+  )
+
+  vscode.languages.registerDocumentFormattingEditProvider(
+    "codeowners",
+    new AlignOwnersFormattingProvider(),
   )
 
   context.subscriptions.push(
