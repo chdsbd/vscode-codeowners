@@ -58,7 +58,22 @@
         "scopeName": "text.codeowners",
         "path": "./syntaxes/codeowners.tmLanguage.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "GitHub Code Owners",
+      "properties": {
+        "github-code-owners.format.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether or not to enable formatting."
+        },
+        "github-code-owners.format.alignment-offset": {
+          "type": "number",
+          "default": 4,
+          "description": "Space offset to use from the longest file pattern the first code owner when aligning."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "./s/build",

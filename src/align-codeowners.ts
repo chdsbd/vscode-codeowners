@@ -3,6 +3,7 @@ import trimStart from "lodash/trimStart"
 import trimEnd from "lodash/trimEnd"
 import trim from "lodash/trim"
 import range from "lodash/range"
+import isNumber from "lodash/isNumber"
 
 interface LineToAlign {
   lineNum: number
@@ -79,11 +80,29 @@ export class AlignOwnersFormattingProvider
 {
   async provideDocumentFormattingEdits(
     document: vscode.TextDocument,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     options: vscode.FormattingOptions,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     token: vscode.CancellationToken,
   ): Promise<vscode.TextEdit[]> {
-    const { tabSize: offSet } = options
+    // Early exit if formatting is disabled or set to a bad value
+    if (
+      vscode.workspace
+        .getConfiguration()
+        .get("github-code-owners.format.enabled") !== true
+    ) {
+      return []
+    }
+    const alinementOffset = vscode.workspace
+      .getConfiguration()
+      .get("github-code-owners.format.alignment-offset")
+
+    // Check that config value for `alinementOffset` is valid before breaking things
+    if (!isNumber(alinementOffset) || alinementOffset < 0) {
+      throw Error(
+        `Expected a positive number for 'github-code-owners.format.alignment-offset' but got ${alinementOffset}`,
+      )
+    }
     // Find the `maxFilePatternLength` and which lines to potentially edit
     const editLines: LineToAlign[] = []
     let maxFilePatternLength = 0
@@ -103,7 +122,7 @@ export class AlignOwnersFormattingProvider
     // Issue the line replacement if needed
     return editLines.reduce((acc: vscode.TextEdit[], editLine: LineToAlign) => {
       const { lineNum, ownersStartIndex, filePatternLength } = editLine
-      const newOwnersStartIndex = maxFilePatternLength + offSet
+      const newOwnersStartIndex = maxFilePatternLength + alinementOffset
       const line = document.lineAt(lineNum)
       if (ownersStartIndex !== newOwnersStartIndex) {
         acc.push(
