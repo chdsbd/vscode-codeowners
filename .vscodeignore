@@ -1,9 +1,15 @@
 .vscode/**
 .vscode-test/**
+.vscode-test.js
 out/test/**
+out/src/**
+test/**
 src/**
+s/**
 .gitignore
+.github/workflows
 vsc-extension-quickstart.md
+**/tsconfig.test.json
 **/tsconfig.json
 **/.prettierrc.js
 **/tslint.json
