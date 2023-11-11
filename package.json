@@ -70,6 +70,7 @@
         "github-code-owners.format.alignment-offset": {
           "type": "number",
           "default": 4,
+          "minimum": 1,
           "description": "Space offset to use from the longest file pattern the first code owner when aligning."
         }
       }

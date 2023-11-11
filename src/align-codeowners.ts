@@ -92,9 +92,9 @@ export class AlignOwnersFormattingProvider
       .get("github-code-owners.format.alignment-offset")
 
     // Check that config value for `alinementOffset` is valid before breaking things
-    if (!isNumber(alinementOffset) || alinementOffset < 0) {
+    if (!isNumber(alinementOffset) || alinementOffset < 1) {
       throw Error(
-        `Expected a positive number for 'github-code-owners.format.alignment-offset' but got ${alinementOffset}`,
+        `Expected number greater 1 for 'github-code-owners.format.alignment-offset' but got ${alinementOffset}!`,
       )
     }
     // Find the `maxFilePatternLength` and which lines to potentially edit
