@@ -59,12 +59,6 @@ function formatLine({
   perLineOffSet: number
   ownersStartIndex: number
 }): string {
-  console.log({
-    lineText,
-    filePatternLength,
-    lineOffSet: perLineOffSet,
-    ownersStartIndex,
-  })
   return (
     lineText.substring(0, filePatternLength) +
     " ".repeat(perLineOffSet) +
@@ -122,7 +116,9 @@ export class AlignOwnersFormattingProvider
     // Issue the line replacement if needed
     return editLines.reduce((acc: vscode.TextEdit[], editLine: LineToAlign) => {
       const { lineNum, ownersStartIndex, filePatternLength } = editLine
-      const newOwnersStartIndex = maxFilePatternLength + alinementOffset
+      // We need the + 1 because we want `alinementOffset` spaces to be between the end of the
+      // File pattern an before the first owner starts
+      const newOwnersStartIndex = maxFilePatternLength + alinementOffset + 1
       const line = document.lineAt(lineNum)
       if (ownersStartIndex !== newOwnersStartIndex) {
         acc.push(
