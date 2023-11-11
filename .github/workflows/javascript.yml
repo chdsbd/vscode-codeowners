@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build bundle
-        run: ./s/build
+        run: npm run compile
   format:
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Check Formatting
-        run: ./s/fmt
+        run: npm run fmt:check
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Lint JS
-        run: ./s/eslint
+        run: npm run eslint
   typecheck:
     runs-on: ubuntu-latest
     steps:
@@ -54,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Typescript
-        run: ./s/typecheck
+        run: npm run typecheck
   test:
     strategy:
       matrix:

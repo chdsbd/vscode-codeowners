@@ -77,10 +77,17 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "./s/build",
+    "vscode:prepublish": "run-s compile",
+    "compile": "node esbuild.config.js",
+    "eslint": "eslint --ignore-path .gitignore .",
+    "typecheck": "run-s typecheck:src typecheck:test",
+    "typecheck:src": "tsc --noEmit -p ./",
+    "typecheck:test": " tsc --noEmit -p ./tsconfig.test.json",
+    "fmt": "prettier '**/*.{js,md,yml,json}' --write",
+    "fmt:check": "prettier --check '**/*.{js,md,yml,json}'",
+    "package": "vsce package",
     "compile-tests": "tsc -p ./tsconfig.test.json",
-    "pretest": "npm run compile && npm run compile-tests",
+    "pretest": "run-s compile compile-tests",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
@@ -96,6 +103,7 @@
     "eslint": "^8.35.0",
     "glob": "^10.3.10",
     "mocha": "^10.2.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.8.4",
     "typescript": "^4.9.5"
   },
