@@ -1,3 +1,5 @@
+/* eslint-disable init-declarations */
+// That is how the tests are supposed to be written ¯\_(ツ)_/¯
 import vscode from "vscode"
 import { AlignOwnersFormattingProvider } from "../../src/align-codeowners"
 import assert from "assert"
