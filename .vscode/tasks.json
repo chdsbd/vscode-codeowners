@@ -15,6 +15,21 @@
         // "clear": true,
         "close": true
       }
+    },
+    {
+      "label": "build-tests",
+      "type": "npm",
+      "script": "compile-tests",
+      "problemMatcher": [],
+      "presentation": {
+        // "echo": true,
+        // "reveal": "silent",
+        // "focus": false,
+        // "panel": "new",
+        // "showReuseMessage": false,
+        // "clear": true,
+        "close": true
+      }
     }
   ]
 }
