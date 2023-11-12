@@ -1,26 +1,6 @@
 # [github-code-owners](https://github.com/chdsbd/vscode-github-code-owners) [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/chdsbd.github-code-owners.svg)](https://marketplace.visualstudio.com/items?itemName=chdsbd.github-code-owners) [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/chdsbd.github-code-owners.svg)](https://marketplace.visualstudio.com/items?itemName=chdsbd.github-code-owners)
 
-<img src="https://github.com/chdsbd/vscode-github-code-owners/raw/master/images/logo256.png" alt="" width="200" height="200">
-
 A VS Code extension to display the GitHub Code Owners for the current file, as defined in the [CODEOWNERS](https://help.github.com/articles/about-codeowners/) file.
-
-## Install
-
-### From online marketplace
-
-Open the [online marketplace listing](https://marketplace.visualstudio.com/items?itemName=chdsbd.github-code-owners#overview) for GitHub Code Owners and click "Install". Follow the prompts to open VSCode and install GitHub Code Owners.
-
-### From VSCode
-
-In VSCode, type `CMD`+`P` and enter `ext install chdsbd.github-code-owners`. Or search for and install `chdsbd.github-code-owners` via the extensions tab.
-
-### From Github release
-
-Download the extension package from the [latest Github release](https://github.com/chdsbd/vscode-github-code-owners/releases/latest) and run `code --install-extension github-code-owners-*.vsix`
-
-### From source
-
-With `vsce` installed from NPM (`yarn global add vsce`), clone [this repo](https://github.com/chdsbd/vscode-github-code-owners) and run `vsce package`. Install the resulting package with `code --install-extension github-code-owners-*.vsix`
 
 ## Features
 
@@ -49,6 +29,24 @@ Shows the first code owner. Click to see matching line in CODEOWNERS file.
 Open matching line in CODEOWNERS file with the `GitHub Code Owners: Show owners of current file` command.
 
 <img src="./images/command.png" alt="code owners command" height="63px"/>
+
+## Install
+
+### From online marketplace
+
+Open the [online marketplace listing](https://marketplace.visualstudio.com/items?itemName=chdsbd.github-code-owners#overview) for GitHub Code Owners and click "Install". Follow the prompts to open VSCode and install GitHub Code Owners.
+
+### From VSCode
+
+In VSCode, type `CMD`+`P` and enter `ext install chdsbd.github-code-owners`. Or search for and install `chdsbd.github-code-owners` via the extensions tab.
+
+### From Github release
+
+Download the extension package from the [latest Github release](https://github.com/chdsbd/vscode-github-code-owners/releases/latest) and run `code --install-extension github-code-owners-*.vsix`
+
+### From source
+
+With `vsce` installed from NPM (`yarn global add vsce`), clone [this repo](https://github.com/chdsbd/vscode-github-code-owners) and run `vsce package`. Install the resulting package with `code --install-extension github-code-owners-*.vsix`
 
 ## Related extensions
 
