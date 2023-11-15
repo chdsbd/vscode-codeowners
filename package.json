@@ -64,7 +64,7 @@
       "properties": {
         "github-code-owners.format.enabled": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Whether or not to enable formatting."
         },
         "github-code-owners.format.alignment-offset": {
