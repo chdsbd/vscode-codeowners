@@ -24,6 +24,13 @@ Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
 <img src="./images/syntax-highlighting.png" alt="syntax highlighting" height="284px"/>
 
+#### Formatting
+
+> [!TIP]
+> Enable formatting by setting `github-code-owners.format.enabled` to `true`.
+
+<img src="./images/formatting.gif" alt="auto complete of paths and usernames" width="408px" height="185px"/>
+
 ### Command
 
 Open matching line in CODEOWNERS file with the `GitHub Code Owners: Show owners of current file` command.
