@@ -29,6 +29,26 @@ function getGitHubUrl(): string {
   return setting
 }
 
+type SlackMappingConfigurationItem = {
+  domain: string
+  channel: string
+  team: string
+}
+
+function getTeamMappingSlack() {
+  const setting =
+    vscode.workspace
+      .getConfiguration()
+      .get<Array<SlackMappingConfigurationItem>>(
+        "github-code-owners.team-mapping.slack",
+      ) ?? []
+  const mapping: Record<string, SlackMappingConfigurationItem | undefined> = {}
+  for (const team of setting) {
+    mapping[team.team] = team
+  }
+  return mapping
+}
+
 /**
  * Add links to usernames in CODEOWNERS file that open on GitHub.
  */
@@ -38,6 +58,7 @@ export class GitHubUsernamesLinkProvider
   provideDocumentLinks(
     document: vscode.TextDocument,
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
+    const slackTeamMapping = getTeamMappingSlack()
     const links = []
     for (const range of findUsernameRanges(document)) {
       if (range) {
@@ -52,9 +73,25 @@ export class GitHubUsernamesLinkProvider
           range,
           githubUserToUrl(username.replace(/^@/, "")),
         )
-        link.tooltip = `View ${username} on Github`
-
+        link.tooltip = `Open ${username} on Github`
         links.push(link)
+
+        const slackMapping = slackTeamMapping[username]
+        if (slackMapping) {
+          const linkslack = new vscode.DocumentLink(
+            range,
+            // https://api.slack.com/reference/deep-linking
+            // https://acme-corp.slack.com/channels/eng-frontend
+            vscode.Uri.parse(
+              `https://${
+                slackMapping.domain
+              }/app_redirect?channel=${slackMapping.channel.replace(/^#/, "")}`,
+            ),
+          )
+          linkslack.tooltip = `Open ${slackMapping.channel} on Slack`
+
+          links.push(linkslack)
+        }
       }
     }
     return links

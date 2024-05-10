@@ -4,7 +4,7 @@
   "description": "Quickly see GitHub Code Owners for the current file. Add syntax highlighting for CODEOWNERS files.",
   "publisher": "chdsbd",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "icon": "images/logo256.png",
   "homepage": "https://github.com/chdsbd/vscode-github-code-owners/blob/master/README.md",
   "keywords": [
@@ -72,6 +72,52 @@
           "default": 4,
           "minimum": 1,
           "description": "Space offset to use from the longest file pattern the first code owner when aligning."
+        },
+        "github-code-owners.team-mapping.slack": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "Map GitHub teams to Slack channels.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "team": {
+                "type": "string",
+                "examples": [
+                  "@acme-corp/frontend"
+                ],
+                "markdownDescription": "GitHub team",
+                "pattern": "^@",
+                "patternErrorMessage": "GitHub teams must start with @",
+                "required": true
+              },
+              "domain": {
+                "type": "string",
+                "markdownDescription": "Slack domain",
+                "examples": [
+                  "acme-corp.slack.com"
+                ],
+                "required": true
+              },
+              "channel": {
+                "type": "string",
+                "markdownDescription": "Slack channel",
+                "examples": [
+                  "#eng-frontend"
+                ],
+                "pattern": "^#",
+                "patternErrorMessage": "Slack channels must start with #",
+                "required": true
+              }
+            },
+            "required": true,
+            "examples": [
+              {
+                "team": "@acme-corp/frontend",
+                "domain": "acme-corp.slack.com",
+                "channel": "#eng-frontend"
+              }
+            ]
+          }
         }
       }
     }
