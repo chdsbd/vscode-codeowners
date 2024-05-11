@@ -21,7 +21,10 @@ export class CodeownersHoverProvider implements vscode.HoverProvider {
     try {
       isDirectory = fs.statSync(myPath).isDirectory()
     } catch (e) {
-      console.error("github-code-owners", e)
+      // @ts-expect-error we should see this error.
+      if (e.code !== "ENOENT") {
+        console.error("github-code-owners", e)
+      }
     }
     const x = new vscode.MarkdownString()
     x.appendCodeblock(m)
