@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Slack channel mapping via `github-code-owners.team-mapping.slack` setting.
+- Slack channel mapping via `github-code-owners.team-mapping.slack` setting (#26).
 
 ## 3.3.0 - 2023-11-15
 
