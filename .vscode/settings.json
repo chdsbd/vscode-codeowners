@@ -13,5 +13,12 @@
   "[codeowners]": {
     // never autoformat test files
     "editor.defaultFormatter": null
-  }
+  },
+  "github-code-owners.team-mapping.slack": [
+    {
+      "team": "@octo-org/octocats",
+      "domain": "octo-org.slack.com",
+      "channel": "#help-octo-ui"
+    }
+  ]
 }

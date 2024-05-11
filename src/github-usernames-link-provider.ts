@@ -32,7 +32,7 @@ function getGitHubUrl(): string {
 type SlackMappingConfigurationItem = {
   domain: string
   channel: string
-  team: string
+  username: string
 }
 
 function getTeamMappingSlack() {
@@ -44,7 +44,7 @@ function getTeamMappingSlack() {
       ) ?? []
   const mapping: Record<string, SlackMappingConfigurationItem | undefined> = {}
   for (const team of setting) {
-    mapping[team.team] = team
+    mapping[team.username] = team
   }
   return mapping
 }

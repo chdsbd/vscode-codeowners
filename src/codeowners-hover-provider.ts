@@ -6,14 +6,8 @@ export class CodeownersHoverProvider implements vscode.HoverProvider {
   provideHover(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.Hover> {
-    console.log({ document, position, token })
     const line = document.lineAt(position.line)
-    // if (line.text.match(/^\s/))
-    console.log(line)
-    const start = line.text.split(" ")[0]
-    console.log({ start })
     const m = line.text.match(/^\s*(\S+)/)?.[1]
     if (m == null) {
       return { contents: [] }
@@ -27,7 +21,7 @@ export class CodeownersHoverProvider implements vscode.HoverProvider {
     try {
       isDirectory = fs.statSync(myPath).isDirectory()
     } catch (e) {
-      console.error(e)
+      console.error("github-code-owners", e)
     }
     const x = new vscode.MarkdownString()
     x.appendCodeblock(m)
@@ -50,9 +44,7 @@ export class CodeownersHoverProvider implements vscode.HoverProvider {
           : isDirectory
           ? `Matches all files in directory and subdirectories`
           : `Matches path exactly`,
-        // !isPattern && isDirectory == null ? "Path does not exist" : "",
       ],
     }
-    // return { contents: [] }
   }
 }

@@ -16,10 +16,12 @@ export function activate(context: vscode.ExtensionContext) {
   console.log("CODEOWNERS: activated")
   const outputChannel = vscode.window.createOutputChannel("Github Code Owners")
 
-  vscode.languages.registerDocumentLinkProvider(
-    "codeowners",
-    new GitHubUsernamesLinkProvider(),
-  )
+  const handles = {
+    linkProvider: vscode.languages.registerDocumentLinkProvider(
+      "codeowners",
+      new GitHubUsernamesLinkProvider(),
+    ),
+  }
 
   vscode.languages.registerDocumentFormattingEditProvider(
     "codeowners",
@@ -66,4 +68,13 @@ export function activate(context: vscode.ExtensionContext) {
       statusBarTextEditorListener(statusBarItem, outputChannel),
     ),
   )
+
+  vscode.workspace.onDidChangeConfiguration(() => {
+    outputChannel.appendLine("Configuration changed: Reloading link provider")
+    handles.linkProvider.dispose()
+    handles.linkProvider = vscode.languages.registerDocumentLinkProvider(
+      "codeowners",
+      new GitHubUsernamesLinkProvider(),
+    )
+  })
 }

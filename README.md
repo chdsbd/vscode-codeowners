@@ -16,6 +16,12 @@ Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
 <img src="./images/open-in-github.png" alt="click to open username in GitHub" height="70px"/>
 
+#### Link usernames to Slack
+
+<img src="./images/open-in-slack.png" alt="click to open username in GitHub" height="110px"/>
+
+> Define a Slack mapping in your VSCode settings (`github-code-owners.team-mapping.slack`) to enable this feature.
+
 #### Auto complete
 
 <img src="./images/autocomplete.gif" alt="auto complete of paths and usernames" width="618px" height="359px"/>
@@ -26,7 +32,6 @@ Shows the first code owner. Click to see matching line in CODEOWNERS file.
 
 #### Formatting
 
-> [!TIP]
 > Enable formatting by setting `github-code-owners.format.enabled` to `true`.
 
 <img src="./images/formatting.gif" alt="auto complete of paths and usernames" width="408px" height="185px"/>
