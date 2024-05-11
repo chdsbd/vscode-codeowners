@@ -6,6 +6,10 @@
   "files.associations": {
     "test/data/**/*": "codeowners"
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
   "[codeowners]": {
     // never autoformat test files
     "editor.defaultFormatter": null
