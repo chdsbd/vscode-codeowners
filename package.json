@@ -4,7 +4,7 @@
   "description": "Quickly see GitHub Code Owners for the current file. Add syntax highlighting for CODEOWNERS files.",
   "publisher": "chdsbd",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "3.4.0",
+  "version": "4.0.0",
   "icon": "images/logo256.png",
   "homepage": "https://github.com/chdsbd/vscode-github-code-owners/blob/master/README.md",
   "keywords": [
@@ -80,14 +80,14 @@
           "items": {
             "type": "object",
             "properties": {
-              "team": {
+              "username": {
                 "type": "string",
                 "examples": [
                   "@acme-corp/frontend"
                 ],
-                "markdownDescription": "GitHub team",
+                "markdownDescription": "GitHub username",
                 "pattern": "^@",
-                "patternErrorMessage": "GitHub teams must start with @",
+                "patternErrorMessage": "GitHub usernames must start with @",
                 "required": true
               },
               "domain": {
@@ -112,7 +112,7 @@
             "required": true,
             "examples": [
               {
-                "team": "@acme-corp/frontend",
+                "username": "@acme-corp/frontend",
                 "domain": "acme-corp.slack.com",
                 "channel": "#eng-frontend"
               }

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 4.0.0 - 2024-04-11
+
+### Added
+
+- Reload link provider when settings change (#28).
+- Center editor on CODEOWNERS line when jumping to owner via status bar (#28).
+
+### Changed
+
+- Rename GitHub "team" setting to "username" to be consistent with existing features (#28).
+
 ## 3.4.0 - 2024-04-10
 
 ### Added

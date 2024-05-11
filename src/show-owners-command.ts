@@ -10,7 +10,7 @@ async function fileExists(path: string): Promise<boolean> {
   } catch (e: unknown) {
     // @ts-expect-error we should see this error.
     if (e.code !== "FileNotFound") {
-      console.error(e)
+      console.error("github-code-owners:", e)
     }
     return false
   }
@@ -108,7 +108,7 @@ export function showOwnersCommandHandler(outputChannel: vscode.OutputChannel) {
         line.range.end,
       )
       // scroll the line into focus.
-      textEditor.revealRange(line.range)
+      textEditor.revealRange(line.range, vscode.TextEditorRevealType.InCenter)
     }
   }
 }
