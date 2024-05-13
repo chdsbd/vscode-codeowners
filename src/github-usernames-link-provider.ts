@@ -1,5 +1,10 @@
 import vscode from "vscode"
 import { findUsernameRanges } from "./owner-name-completion-item-provider"
+import {
+  SlackMappingConfigurationItem,
+  getGitHubUrl,
+  getTeamMappingSlack,
+} from "./configuration"
 
 function githubUserToUrl(username: string): vscode.Uri {
   const isTeamName = username.includes("/")
@@ -12,36 +17,8 @@ function githubUserToUrl(username: string): vscode.Uri {
   return vscode.Uri.parse(gitHubUrl + `/${username}`)
 }
 
-function getGitHubUrl(): string {
-  /*
-   * When using GitHub Enterprise Server, you should have a 'github-enterprise.uri'
-   * configuration setting.
-   *
-   * This configuration option is provided by built in "GitHub Authentication" extension
-   * https://github.com/microsoft/vscode/blob/ccb95fd921349023027a0df25ed291b0992b9a18/extensions/github-authentication/src/extension.ts#L10
-   */
-  const setting = vscode.workspace
-    .getConfiguration()
-    .get<string>("github-enterprise.uri")
-  if (!setting) {
-    return "https://github.com"
-  }
-  return setting
-}
-
-type SlackMappingConfigurationItem = {
-  domain: string
-  channel: string
-  username: string
-}
-
-function getTeamMappingSlack() {
-  const setting =
-    vscode.workspace
-      .getConfiguration()
-      .get<Array<SlackMappingConfigurationItem>>(
-        "github-code-owners.team-mapping.slack",
-      ) ?? []
+function buildMappingSlack() {
+  const setting = getTeamMappingSlack()
   const mapping: Record<string, SlackMappingConfigurationItem | undefined> = {}
   for (const team of setting) {
     mapping[team.username] = team
@@ -58,7 +35,7 @@ export class GitHubUsernamesLinkProvider
   provideDocumentLinks(
     document: vscode.TextDocument,
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
-    const slackTeamMapping = getTeamMappingSlack()
+    const slackTeamMapping = buildMappingSlack()
     const links = []
     for (const range of findUsernameRanges(document)) {
       if (range) {
