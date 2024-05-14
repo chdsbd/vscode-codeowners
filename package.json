@@ -4,7 +4,7 @@
   "description": "Quickly see GitHub Code Owners for the current file. Add syntax highlighting for CODEOWNERS files.",
   "publisher": "chdsbd",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "icon": "images/logo256.png",
   "homepage": "https://github.com/chdsbd/vscode-github-code-owners/blob/master/README.md",
   "keywords": [
@@ -62,18 +62,93 @@
     "configuration": {
       "title": "GitHub Code Owners",
       "properties": {
+        "githubCodeOwners.format.enabled": {
+          "type": "boolean",
+          "default": false,
+          "order": 1,
+          "description": "Whether or not to enable formatting."
+        },
+        "githubCodeOwners.format.alignmentOffset": {
+          "type": "number",
+          "default": 4,
+          "minimum": 1,
+          "order": 2,
+          "description": "Space offset to use from the longest file pattern the first code owner when aligning."
+        },
+        "githubCodeOwners.teamMapping.slack": {
+          "order": 3,
+          "type": "array",
+          "default": [],
+          "markdownDescription": "Map GitHub teams to Slack channels.",
+          "items": {
+            "type": "object",
+            "required": [
+              "username",
+              "domain",
+              "channel"
+            ],
+            "propertyNames": [
+              "username",
+              "domain",
+              "channel"
+            ],
+            "properties": {
+              "username": {
+                "type": "string",
+                "examples": [
+                  "@acme-corp/frontend"
+                ],
+                "markdownDescription": "GitHub username",
+                "pattern": "^@",
+                "patternErrorMessage": "GitHub usernames must start with @",
+                "required": true
+              },
+              "domain": {
+                "type": "string",
+                "markdownDescription": "Slack domain",
+                "examples": [
+                  "acme-corp.slack.com"
+                ],
+                "required": true
+              },
+              "channel": {
+                "type": "string",
+                "markdownDescription": "Slack channel",
+                "examples": [
+                  "#eng-frontend"
+                ],
+                "pattern": "^#",
+                "patternErrorMessage": "Slack channels must start with #",
+                "required": true
+              }
+            },
+            "examples": [
+              {
+                "username": "@acme-corp/frontend",
+                "domain": "acme-corp.slack.com",
+                "channel": "#eng-frontend"
+              }
+            ]
+          }
+        },
         "github-code-owners.format.enabled": {
+          "markdownDeprecationMessage": "**Deprecated**: Please use `#githubCodeOwners.format.enabled#` instead.",
+          "deprecationMessage": "Deprecated: Please use githubCodeOwners.format.enabled instead.",
           "type": "boolean",
           "default": false,
           "description": "Whether or not to enable formatting."
         },
         "github-code-owners.format.alignment-offset": {
+          "markdownDeprecationMessage": "**Deprecated**: Please use `#githubCodeOwners.format.alignmentOffset#` instead.",
+          "deprecationMessage": "Deprecated: Please use githubCodeOwners.format.alignmentOffset instead.",
           "type": "number",
           "default": 4,
           "minimum": 1,
           "description": "Space offset to use from the longest file pattern the first code owner when aligning."
         },
         "github-code-owners.team-mapping.slack": {
+          "markdownDeprecationMessage": "**Deprecated**: Please use `#githubCodeOwners.teamMapping.slack#` instead.",
+          "deprecationMessage": "Deprecated: Please use githubCodeOwners.teamMapping.slack instead.",
           "type": "array",
           "default": [],
           "markdownDescription": "Map GitHub teams to Slack channels.",

@@ -29,7 +29,7 @@ suite("AlignOwnersFormattingProvider", () => {
   // Ignored anyway
   let mockOptions: vscode.FormattingOptions
   let mockToken: vscode.CancellationToken
-  const badOffSetValues = ["invalid", -1, 0] as const
+  const badOffSetValues = [-1, 0] as const
 
   beforeEach(() => {
     provider = new AlignOwnersFormattingProvider()
@@ -44,14 +44,14 @@ suite("AlignOwnersFormattingProvider", () => {
 
   afterEach(async () => {
     // restore default config
-    const settings = vscode.workspace.getConfiguration("github-code-owners")
+    const settings = vscode.workspace.getConfiguration("githubCodeOwners")
     await settings.update(
       "format.enabled",
       true,
       vscode.ConfigurationTarget.Global,
     )
     await settings.update(
-      "format.alignment-offset",
+      "format.alignmentOffset",
       4,
       vscode.ConfigurationTarget.Global,
     )
@@ -73,7 +73,7 @@ suite("AlignOwnersFormattingProvider", () => {
   })
 
   test("should not edit when formatting is disabled", async () => {
-    const settings = vscode.workspace.getConfiguration("github-code-owners")
+    const settings = vscode.workspace.getConfiguration("githubCodeOwners")
     await settings.update(
       "format.enabled",
       false,
@@ -94,9 +94,9 @@ suite("AlignOwnersFormattingProvider", () => {
 
   badOffSetValues.forEach((badOffSetValue) => {
     test(`should throw an error when alignment offset is not a positive number: ${badOffSetValue}`, async () => {
-      const settings = vscode.workspace.getConfiguration("github-code-owners")
+      const settings = vscode.workspace.getConfiguration("githubCodeOwners")
       await settings.update(
-        "format.alignment-offset",
+        "format.alignmentOffset",
         badOffSetValue,
         vscode.ConfigurationTarget.Global,
       )
@@ -138,9 +138,9 @@ suite("AlignOwnersFormattingProvider", () => {
   })
 
   test("should create same output as 'expected-formatted-with-offset-8'", async () => {
-    const settings = vscode.workspace.getConfiguration("github-code-owners")
+    const settings = vscode.workspace.getConfiguration("githubCodeOwners")
     await settings.update(
-      "format.alignment-offset",
+      "format.alignmentOffset",
       8,
       vscode.ConfigurationTarget.Global,
     )

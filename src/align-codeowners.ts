@@ -3,7 +3,7 @@ import trimStart from "lodash/trimStart"
 import trimEnd from "lodash/trimEnd"
 import trim from "lodash/trim"
 import range from "lodash/range"
-import isNumber from "lodash/isNumber"
+import { getAlignmentOffset, isFormatEnabled } from "./configuration"
 
 interface LineToAlign {
   lineNum: number
@@ -80,21 +80,15 @@ export class AlignOwnersFormattingProvider
     token: vscode.CancellationToken,
   ): Promise<vscode.TextEdit[]> {
     // Early exit if formatting is disabled or set to a bad value
-    if (
-      vscode.workspace
-        .getConfiguration()
-        .get("github-code-owners.format.enabled") !== true
-    ) {
+    if (!isFormatEnabled()) {
       return []
     }
-    const alinementOffset = vscode.workspace
-      .getConfiguration()
-      .get("github-code-owners.format.alignment-offset")
+    const alignmentOffset = getAlignmentOffset()
 
     // Check that config value for `alinementOffset` is valid before breaking things
-    if (!isNumber(alinementOffset) || alinementOffset < 1) {
+    if (alignmentOffset < 1) {
       throw Error(
-        `Expected number greater 1 for 'github-code-owners.format.alignment-offset' but got ${alinementOffset}!`,
+        `Expected number greater 1 for 'githubCodeOwners.format.alignmentOffset' but got ${alignmentOffset}!`,
       )
     }
     // Find the `maxFilePatternLength` and which lines to potentially edit
@@ -118,7 +112,7 @@ export class AlignOwnersFormattingProvider
       const { lineNum, ownersStartIndex, filePatternLength } = editLine
       // We need the + 1 because we want `alinementOffset` spaces to be between the end of the
       // File pattern an before the first owner starts
-      const newOwnersStartIndex = maxFilePatternLength + alinementOffset + 1
+      const newOwnersStartIndex = maxFilePatternLength + alignmentOffset + 1
       const line = document.lineAt(lineNum)
       if (ownersStartIndex !== newOwnersStartIndex) {
         acc.push(
